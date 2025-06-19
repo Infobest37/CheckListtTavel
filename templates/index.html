@@ -7,6 +7,7 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
   <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico.png') }}">
 
   <style>
@@ -109,10 +110,6 @@
       font-size: 0.95rem;
     }
 
-    .form-check-label {
-      font-weight: 500;
-    }
-
     .btn-primary {
       background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
       border: none;
@@ -136,9 +133,16 @@
       transform: translateY(0);
     }
 
-    .form-check-input:checked {
+    .btn-outline-primary {
+      border: 2px solid var(--primary);
+      color: var(--primary);
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .btn-outline-primary:hover {
       background-color: var(--primary);
-      border-color: var(--primary);
+      color: white;
     }
 
     .travel-mode-selector {
@@ -165,16 +169,6 @@
     .travel-mode-option.active {
       border-color: var(--primary);
       background-color: rgba(67, 97, 238, 0.15);
-    }
-
-    .travel-mode-emoji {
-      font-size: 1.8rem;
-      margin-bottom: 0.5rem;
-    }
-
-    .travel-mode-text {
-      font-weight: 600;
-      font-size: 1rem;
     }
 
     .trip-type-selector {
@@ -205,33 +199,36 @@
       background-color: rgba(67, 97, 238, 0.15);
     }
 
-    .trip-type-emoji {
-      font-size: 1.2rem;
-      margin-right: 0.3rem;
+    .progress-container {
+      margin: 2rem 0;
+      display: none;
     }
 
-    .info-text {
-      font-size: 0.85rem;
-      color: var(--gray);
-      margin-top: 0.25rem;
+    .progress-bar {
+      height: 10px;
+      border-radius: 5px;
+      background-color: #e9ecef;
+      overflow: hidden;
     }
 
-    .alert {
-      border-radius: 12px;
-      padding: 1rem;
-      margin-bottom: 1.5rem;
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      width: 0;
+      transition: width 0.5s ease;
     }
 
-    .alert-danger {
-      background-color: #fee2e2;
-      color: #b91c1c;
-      border: 1px solid #fca5a5;
+    .pdf-preview-container {
+      display: none;
+      margin-top: 2rem;
+      animation: fadeIn 0.5s ease;
     }
 
-    .alert-success {
-      background-color: #dcfce7;
-      color: #166534;
-      border: 1px solid #86efac;
+    .pdf-actions {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+      justify-content: center;
     }
 
     @keyframes fadeIn {
@@ -252,7 +249,7 @@
     /* Адаптивность */
     @media (max-width: 768px) {
       body {
-        padding: 1.5rem;
+        padding: 1rem;
       }
 
       .header-title {
@@ -260,25 +257,30 @@
       }
 
       .form-card {
-        padding: 1.75rem;
+        padding: 1.5rem;
       }
 
       .travel-mode-selector {
         flex-direction: column;
       }
+
+      .pdf-actions {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .btn {
+        width: 100%;
+      }
     }
 
     @media (max-width: 576px) {
-      body {
-        padding: 1rem;
-      }
-
       .header-title {
         font-size: 1.8rem;
       }
 
       .form-card {
-        padding: 1.5rem;
+        padding: 1.25rem;
       }
 
       .trip-type-option {
@@ -292,28 +294,33 @@
     <!-- Заголовок и описание -->
     <div class="header-section">
       <img src="https://cdn-icons-png.flaticon.com/512/201/201623.png" alt="Путешествие" class="travel-image animate__animated animate__bounceIn">
-      <h1 class="header-title">Генератор чек-листов для поездок</h1>
-      <p class="header-subtitle">Создайте персонализированный список вещей для вашего путешествия всего за пару кликов!</p>
+      <h1 class="header-title">Генератор чек-листов</h1>
+      <p class="header-subtitle">Создайте персонализированный список вещей для вашего путешествия</p>
     </div>
 
     <!-- Основная форма -->
     <div class="form-card">
-      <!-- Сообщения об ошибках (будет работать с Flask) -->
-            <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }}">
-            </div>
-      <form method="post">
+      <form id="checklistForm" method="post">
+        <!-- Прогресс-бар -->
+        <div class="progress-container">
+          <p class="text-center mb-2">Генерация чек-листа...</p>
+          <div class="progress-bar">
+            <div class="progress-bar-fill"></div>
+          </div>
+        </div>
+
         <!-- Выбор режима путешествия -->
         <div class="mb-4">
           <label class="form-label">Тип путешествия:</label>
           <div class="travel-mode-selector">
             <div class="travel-mode-option active" onclick="selectMode('Один')">
-              <div class="travel-mode-emoji">👤</div>
+              <i class="bi bi-person-fill travel-mode-emoji"></i>
               <div class="travel-mode-text">Один</div>
               <input class="form-check-input" type="radio" name="mode" id="soloMode" value="Один" checked onchange="toggleForm()" style="display: none;">
             </div>
             <div class="travel-mode-option" onclick="selectMode('Семья')">
-              <div class="travel-mode-emoji">👨‍👩‍👧‍👦</div>
-              <div class="travel-mode-text">Семья/друзья</div>
+              <i class="bi bi-people-fill travel-mode-emoji"></i>
+              <div class="travel-mode-text">Семья</div>
               <input class="form-check-input" type="radio" name="mode" id="familyMode" value="Семья" onchange="toggleForm()" style="display: none;">
             </div>
           </div>
@@ -322,23 +329,32 @@
         <!-- Основные поля формы -->
         <div class="mb-4">
           <label class="form-label">Куда вы направляетесь?</label>
-          <input type="text" class="form-control" name="destination" placeholder="Например: Турция, Италия, Таиланд..." required />
+          <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-geo-alt-fill"></i></span>
+            <input type="text" class="form-control" name="destination" placeholder="Например: Турция, Италия, Таиланд..." required />
+          </div>
           <div class="info-text">Укажите страну или город назначения</div>
         </div>
 
         <div class="row g-3 mb-4">
           <div class="col-md-6">
             <label class="form-label">Сезон поездки</label>
-            <select name="season" class="form-select" required>
-              <option value="Лето">🌞 Лето</option>
-              <option value="Осень">🍂 Осень</option>
-              <option value="Зима">❄️ Зима</option>
-              <option value="Весна">🌷 Весна</option>
-            </select>
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-sun-fill"></i></span>
+              <select name="season" class="form-select" required>
+                <option value="Лето">🌞 Лето</option>
+                <option value="Осень">🍂 Осень</option>
+                <option value="Зима">❄️ Зима</option>
+                <option value="Весна">🌷 Весна</option>
+              </select>
+            </div>
           </div>
           <div class="col-md-6">
-            <label class="form-label">Продолжительность (дней)</label>
-            <input type="number" class="form-control" name="days" required min="1" placeholder="Например: 7, 14, 30" />
+            <label class="form-label">Продолжительность</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-calendar-range"></i></span>
+              <input type="number" class="form-control" name="days" required min="1" placeholder="Дней: 7, 14, 30" />
+            </div>
           </div>
         </div>
 
@@ -346,24 +362,20 @@
           <label class="form-label">Тип поездки</label>
           <div class="trip-type-selector">
             <div class="trip-type-option active" onclick="selectTripType('Пляж')">
-              <span class="trip-type-emoji">🏖️</span> Пляж
+              <i class="bi bi-umbrella"></i> Пляж
               <input type="radio" name="trip_type" value="Пляж" checked style="display: none;">
             </div>
             <div class="trip-type-option" onclick="selectTripType('Город')">
-              <span class="trip-type-emoji">🏙️</span> Город
+              <i class="bi bi-building"></i> Город
               <input type="radio" name="trip_type" value="Город" style="display: none;">
             </div>
             <div class="trip-type-option" onclick="selectTripType('Горы')">
-              <span class="trip-type-emoji">⛰️</span> Горы
+              <i class="bi bi-mountain"></i> Горы
               <input type="radio" name="trip_type" value="Горы" style="display: none;">
             </div>
             <div class="trip-type-option" onclick="selectTripType('Рабочая')">
-              <span class="trip-type-emoji">💼</span> Рабочая
+              <i class="bi bi-briefcase"></i> Рабочая
               <input type="radio" name="trip_type" value="Рабочая" style="display: none;">
-            </div>
-            <div class="trip-type-option" onclick="selectTripType('Экскурсионная')">
-              <span class="trip-type-emoji">🏛️</span> Экскурсии
-              <input type="radio" name="trip_type" value="Экскурсионная" style="display: none;">
             </div>
           </div>
         </div>
@@ -373,14 +385,20 @@
           <div class="row g-3">
             <div class="col-md-6">
               <label class="form-label">Ваш пол</label>
-              <select name="gender" class="form-select">
-                <option value="Мужчина">👨 Мужчина</option>
-                <option value="Женщина">👩 Женщина</option>
-              </select>
+              <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-gender-ambiguous"></i></span>
+                <select name="gender" class="form-select">
+                  <option value="Мужчина">👨 Мужчина</option>
+                  <option value="Женщина">👩 Женщина</option>
+                </select>
+              </div>
             </div>
             <div class="col-md-6">
               <label class="form-label">Ваш возраст</label>
-              <input type="number" class="form-control" name="age" min="0" placeholder="Например: 28" />
+              <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-person-vcard"></i></span>
+                <input type="number" class="form-control" name="age" min="0" placeholder="Например: 28" />
+              </div>
             </div>
           </div>
         </div>
@@ -390,19 +408,28 @@
           <div class="row g-3 mb-3">
             <div class="col-md-6">
               <label class="form-label">Количество взрослых</label>
-              <input type="number" class="form-control" name="adults" min="1" value="2" />
+              <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-person-arms-up"></i></span>
+                <input type="number" class="form-control" name="adults" min="1" value="2" />
+              </div>
             </div>
             <div class="col-md-6">
               <label class="form-label">Есть ли дети?</label>
-              <select name="has_children" class="form-select" onchange="toggleChildrenAges()">
-                <option value="Нет">Нет</option>
-                <option value="Да">Да</option>
-              </select>
+              <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-balloon-heart"></i></span>
+                <select name="has_children" class="form-select" onchange="toggleChildrenAges()">
+                  <option value="Нет">Нет</option>
+                  <option value="Да">Да</option>
+                </select>
+              </div>
             </div>
           </div>
           <div id="childrenAgesField" class="mb-3" style="display: none;">
             <label class="form-label">Возраст детей (через запятую)</label>
-            <input type="text" class="form-control" name="children_ages" placeholder="Например: 3, 7, 12" />
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-123"></i></span>
+              <input type="text" class="form-control" name="children_ages" placeholder="Например: 3, 7, 12" />
+            </div>
             <div class="info-text">Укажите возраст каждого ребенка через запятую</div>
           </div>
         </div>
@@ -410,10 +437,34 @@
         <!-- Кнопка отправки -->
         <div class="d-grid">
           <button type="submit" class="btn btn-primary btn-lg">
-            <span style="font-size: 1.2em; margin-right: 0.5rem;">📄</span> Сгенерировать чек-лист
+            <i class="bi bi-file-earmark-pdf" style="font-size: 1.2em; margin-right: 0.5rem;"></i> Сгенерировать чек-лист
           </button>
         </div>
       </form>
+
+      <!-- Превью PDF -->
+      <div class="pdf-preview-container">
+        <div class="alert alert-success animate__animated animate__fadeIn">
+          <h5 class="alert-heading"><i class="bi bi-check-circle"></i> Чек-лист готов!</h5>
+          <p>Ваш персонализированный список вещей успешно сгенерирован.</p>
+        </div>
+
+        <div class="text-center mt-3">
+          <iframe id="pdfViewer" style="width:100%; height:500px; border:none; border-radius:10px;"></iframe>
+        </div>
+
+        <div class="pdf-actions">
+          <button class="btn btn-primary" onclick="downloadPdf()">
+            <i class="bi bi-download"></i> Скачать
+          </button>
+          <button class="btn btn-outline-primary" onclick="window.print()">
+            <i class="bi bi-printer"></i> Печать
+          </button>
+          <button class="btn btn-outline-primary" onclick="resetForm()">
+            <i class="bi bi-arrow-repeat"></i> Новый список
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -451,6 +502,69 @@
       const hasChildren = document.querySelector('select[name="has_children"]').value === "Да";
       document.getElementById("childrenAgesField").style.display = hasChildren ? "block" : "none";
     }
+
+    // Анимация прогресс-бара
+    function animateProgress() {
+      const progressBar = document.querySelector('.progress-bar-fill');
+      let width = 0;
+      const interval = setInterval(() => {
+        if (width >= 100) {
+          clearInterval(interval);
+          setTimeout(showPdfPreview, 300);
+        } else {
+          width += 10;
+          progressBar.style.width = width + '%';
+        }
+      }, 100);
+    }
+
+    // Показать превью PDF
+    function showPdfPreview() {
+      document.querySelector('.progress-container').style.display = 'none';
+      document.querySelector('.pdf-preview-container').style.display = 'block';
+
+      // Здесь будет код для отображения PDF
+      const pdfViewer = document.getElementById('pdfViewer');
+      pdfViewer.src = URL.createObjectURL(generatePdfBlob());
+    }
+
+    // Генерация PDF (заглушка)
+    function generatePdfBlob() {
+      // В реальном приложении здесь будет генерация PDF на сервере
+      const form = document.getElementById('checklistForm');
+      const destination = form.destination.value;
+
+      // Создаем простой PDF для демонстрации
+      const blob = new Blob([`Чек-лист для поездки в ${destination}`], {type: 'application/pdf'});
+      return blob;
+    }
+
+    // Скачать PDF
+    function downloadPdf() {
+      const a = document.createElement('a');
+      a.href = document.getElementById('pdfViewer').src;
+      a.download = 'travel_checklist.pdf';
+      a.click();
+    }
+
+    // Сброс формы
+    function resetForm() {
+      document.getElementById('checklistForm').reset();
+      document.querySelector('.pdf-preview-container').style.display = 'none';
+      document.querySelector('.travel-mode-option').click(); // Сбросить выбор
+    }
+
+    // Обработка отправки формы
+    document.getElementById('checklistForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      // Показать прогресс-бар
+      document.querySelector('.progress-container').style.display = 'block';
+      animateProgress();
+
+      // В реальном приложении здесь будет AJAX-запрос к серверу
+      // для генерации PDF с последующим отображением в iframe
+    });
 
     // Инициализация при загрузке
     window.onload = function() {
