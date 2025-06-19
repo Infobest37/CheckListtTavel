@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Генератор чек-листов для путешествий | TravelCheck</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+  <style>
+    :root {
+      --primary: #4361ee;
+      --primary-light: #4895ef;
+      --secondary: #3a0ca3;
+      --accent: #f72585;
+      --light: #f8f9fa;
+      --dark: #212529;
+      --gray: #6c757d;
+      --success: #4cc9f0;
+      --warning: #f8961e;
+      --info: #90e0ef;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      color: var(--dark);
+      line-height: 1.6;
+    }
+
+    .travel-container {
+      max-width: 900px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .header-section {
+      text-align: center;
+      margin-bottom: 2.5rem;
+      animation: fadeInDown 0.8s ease;
+    }
+
+    .travel-image {
+      height: 120px;
+      margin-bottom: 1.5rem;
+      filter: drop-shadow(0 5px 15px rgba(67, 97, 238, 0.3));
+    }
+
+    .header-title {
+      font-weight: 700;
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header-subtitle {
+      font-size: 1.1rem;
+      color: var(--gray);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .form-card {
+      background-color: white;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      padding: 2.5rem;
+      width: 100%;
+      border: none;
+      transition: all 0.3s ease;
+      animation: fadeInUp 0.8s ease;
+    }
+
+    .form-card:hover {
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+    }
+
+    .form-section {
+      display: none;
+      animation: fadeIn 0.5s ease;
+    }
+
+    .form-control, .form-select {
+      border-radius: 12px;
+      padding: 0.75rem 1.25rem;
+      border: 1px solid #e0e3e8;
+      transition: all 0.3s ease;
+      font-size: 0.95rem;
+    }
+
+    .form-control:focus, .form-select:focus {
+      border-color: var(--primary-light);
+      box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.15);
+    }
+
+    .form-label {
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: var(--dark);
+      font-size: 0.95rem;
+    }
+
+    .form-check-label {
+      font-weight: 500;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      border: none;
+      font-weight: 600;
+      padding: 1rem;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      letter-spacing: 0.5px;
+      font-size: 1rem;
+      box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+      margin-top: 1rem;
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(67, 97, 238, 0.4);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .form-check-input:checked {
+      background-color: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .travel-mode-selector {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .travel-mode-option {
+      flex: 1;
+      text-align: center;
+      padding: 1.5rem 1rem;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: 2px solid rgba(67, 97, 238, 0.1);
+      background-color: rgba(67, 97, 238, 0.05);
+    }
+
+    .travel-mode-option:hover {
+      background-color: rgba(67, 97, 238, 0.1);
+    }
+
+    .travel-mode-option.active {
+      border-color: var(--primary);
+      background-color: rgba(67, 97, 238, 0.15);
+    }
+
+    .travel-mode-emoji {
+      font-size: 1.8rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .travel-mode-text {
+      font-weight: 600;
+      font-size: 1rem;
+    }
+
+    .trip-type-selector {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-top: 0.5rem;
+    }
+
+    .trip-type-option {
+      flex: 1;
+      min-width: 100px;
+      text-align: center;
+      padding: 0.75rem 0.5rem;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: 2px solid rgba(67, 97, 238, 0.1);
+      background-color: rgba(67, 97, 238, 0.05);
+    }
+
+    .trip-type-option:hover {
+      background-color: rgba(67, 97, 238, 0.1);
+    }
+
+    .trip-type-option.active {
+      border-color: var(--primary);
+      background-color: rgba(67, 97, 238, 0.15);
+    }
+
+    .trip-type-emoji {
+      font-size: 1.2rem;
+      margin-right: 0.3rem;
+    }
+
+    .info-text {
+      font-size: 0.85rem;
+      color: var(--gray);
+      margin-top: 0.25rem;
+    }
+
+    .alert {
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .alert-danger {
+      background-color: #fee2e2;
+      color: #b91c1c;
+      border: 1px solid #fca5a5;
+    }
+
+    .alert-success {
+      background-color: #dcfce7;
+      color: #166534;
+      border: 1px solid #86efac;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Адаптивность */
+    @media (max-width: 768px) {
+      body {
+        padding: 1.5rem;
+      }
+
+      .header-title {
+        font-size: 2rem;
+      }
+
+      .form-card {
+        padding: 1.75rem;
+      }
+
+      .travel-mode-selector {
+        flex-direction: column;
+      }
+    }
+
+    @media (max-width: 576px) {
+      body {
+        padding: 1rem;
+      }
+
+      .header-title {
+        font-size: 1.8rem;
+      }
+
+      .form-card {
+        padding: 1.5rem;
+      }
+
+      .trip-type-option {
+        min-width: calc(50% - 0.5rem);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="travel-container">
+    <!-- Заголовок и описание -->
+    <div class="header-section">
+      <img src="https://cdn-icons-png.flaticon.com/512/201/201623.png" alt="Путешествие" class="travel-image animate__animated animate__bounceIn">
+      <h1 class="header-title">Генератор чек-листов для поездок</h1>
+      <p class="header-subtitle">Создайте персонализированный список вещей для вашего путешествия всего за пару кликов!</p>
+    </div>
+
+    <!-- Основная форма -->
+    <div class="form-card">
+      <!-- Сообщения об ошибках (будет работать с Flask) -->
+            <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }}">
+            </div>
+      <form method="post">
+        <!-- Выбор режима путешествия -->
+        <div class="mb-4">
+          <label class="form-label">Тип путешествия:</label>
+          <div class="travel-mode-selector">
+            <div class="travel-mode-option active" onclick="selectMode('Один')">
+              <div class="travel-mode-emoji">👤</div>
+              <div class="travel-mode-text">Один</div>
+              <input class="form-check-input" type="radio" name="mode" id="soloMode" value="Один" checked onchange="toggleForm()" style="display: none;">
+            </div>
+            <div class="travel-mode-option" onclick="selectMode('Семья')">
+              <div class="travel-mode-emoji">👨‍👩‍👧‍👦</div>
+              <div class="travel-mode-text">Семья/друзья</div>
+              <input class="form-check-input" type="radio" name="mode" id="familyMode" value="Семья" onchange="toggleForm()" style="display: none;">
+            </div>
+          </div>
+        </div>
+
+        <!-- Основные поля формы -->
+        <div class="mb-4">
+          <label class="form-label">Куда вы направляетесь?</label>
+          <input type="text" class="form-control" name="destination" placeholder="Например: Турция, Италия, Таиланд..." required />
+          <div class="info-text">Укажите страну или город назначения</div>
+        </div>
+
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <label class="form-label">Сезон поездки</label>
+            <select name="season" class="form-select" required>
+              <option value="Лето">🌞 Лето</option>
+              <option value="Осень">🍂 Осень</option>
+              <option value="Зима">❄️ Зима</option>
+              <option value="Весна">🌷 Весна</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Продолжительность (дней)</label>
+            <input type="number" class="form-control" name="days" required min="1" placeholder="Например: 7, 14, 30" />
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label">Тип поездки</label>
+          <div class="trip-type-selector">
+            <div class="trip-type-option active" onclick="selectTripType('Пляж')">
+              <span class="trip-type-emoji">🏖️</span> Пляж
+              <input type="radio" name="trip_type" value="Пляж" checked style="display: none;">
+            </div>
+            <div class="trip-type-option" onclick="selectTripType('Город')">
+              <span class="trip-type-emoji">🏙️</span> Город
+              <input type="radio" name="trip_type" value="Город" style="display: none;">
+            </div>
+            <div class="trip-type-option" onclick="selectTripType('Горы')">
+              <span class="trip-type-emoji">⛰️</span> Горы
+              <input type="radio" name="trip_type" value="Горы" style="display: none;">
+            </div>
+            <div class="trip-type-option" onclick="selectTripType('Рабочая')">
+              <span class="trip-type-emoji">💼</span> Рабочая
+              <input type="radio" name="trip_type" value="Рабочая" style="display: none;">
+            </div>
+            <div class="trip-type-option" onclick="selectTripType('Экскурсионная')">
+              <span class="trip-type-emoji">🏛️</span> Экскурсии
+              <input type="radio" name="trip_type" value="Экскурсионная" style="display: none;">
+            </div>
+          </div>
+        </div>
+
+        <!-- Поля для одного человека -->
+        <div id="solo_fields" class="form-section">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Ваш пол</label>
+              <select name="gender" class="form-select">
+                <option value="Мужчина">👨 Мужчина</option>
+                <option value="Женщина">👩 Женщина</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Ваш возраст</label>
+              <input type="number" class="form-control" name="age" min="0" placeholder="Например: 28" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Поля для семьи -->
+        <div id="family_fields" class="form-section" style="display: none;">
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label">Количество взрослых</label>
+              <input type="number" class="form-control" name="adults" min="1" value="2" />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Есть ли дети?</label>
+              <select name="has_children" class="form-select" onchange="toggleChildrenAges()">
+                <option value="Нет">Нет</option>
+                <option value="Да">Да</option>
+              </select>
+            </div>
+          </div>
+          <div id="childrenAgesField" class="mb-3" style="display: none;">
+            <label class="form-label">Возраст детей (через запятую)</label>
+            <input type="text" class="form-control" name="children_ages" placeholder="Например: 3, 7, 12" />
+            <div class="info-text">Укажите возраст каждого ребенка через запятую</div>
+          </div>
+        </div>
+
+        <!-- Кнопка отправки -->
+        <div class="d-grid">
+          <button type="submit" class="btn btn-primary btn-lg">
+            <span style="font-size: 1.2em; margin-right: 0.5rem;">📄</span> Сгенерировать чек-лист
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Выбор режима путешествия
+    function selectMode(mode) {
+      document.querySelectorAll('.travel-mode-option').forEach(opt => {
+        opt.classList.remove('active');
+      });
+      event.currentTarget.classList.add('active');
+
+      document.querySelector(`input[value="${mode}"]`).checked = true;
+      toggleForm();
+    }
+
+    // Выбор типа поездки
+    function selectTripType(type) {
+      document.querySelectorAll('.trip-type-option').forEach(opt => {
+        opt.classList.remove('active');
+      });
+      event.currentTarget.classList.add('active');
+
+      document.querySelector(`input[value="${type}"]`).checked = true;
+    }
+
+    // Переключение между полями для одного/семьи
+    function toggleForm() {
+      const mode = document.querySelector('input[name="mode"]:checked').value;
+      document.getElementById("solo_fields").style.display = mode === "Один" ? "block" : "none";
+      document.getElementById("family_fields").style.display = mode === "Семья" ? "block" : "none";
+    }
+
+    // Показать/скрыть поле возраста детей
+    function toggleChildrenAges() {
+      const hasChildren = document.querySelector('select[name="has_children"]').value === "Да";
+      document.getElementById("childrenAgesField").style.display = hasChildren ? "block" : "none";
+    }
+
+    // Инициализация при загрузке
+    window.onload = function() {
+      toggleForm();
+      toggleChildrenAges();
+    };
+  </script>
+</body>
+</html>
