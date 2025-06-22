@@ -1,281 +1,168 @@
-from fpdf import FPDF
-from typing import List, Dict, Optional
+from reportlab.lib.pagesizes import A4
+from reportlab.pdfgen import canvas
+from reportlab.lib.units import cm, mm
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.lib import colors
+from reportlab.platypus import Table, TableStyle, Paragraph
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.enums import TA_CENTER
+from data_city import DESTINATION_DATA
+import io
+from datetime import datetime
+
+# Регистрируем шрифты
+pdfmetrics.registerFont(TTFont('DejaVuSans', 'fonts/DejaVuSans.ttf'))
+pdfmetrics.registerFont(TTFont('DejaVuSans-Bold', 'fonts/DejaVuSans-Bold.ttf'))
+
+# База данных популярных направлений с климатической информацией
+
+def get_destination_info(destination, season):
+    """Получаем информацию о направлении и сезоне"""
+    for dest in DESTINATION_DATA:
+        if dest.lower() in destination.lower():
+            return DESTINATION_DATA[dest].get(season, {"temp": "Н/Д", "description": "Нет информации"})
+    return {"temp": "Н/Д", "description": "Нет информации"}
 
 
-class PDF(FPDF):
-    def __init__(self):
-        super().__init__()
-        self.add_font("DejaVu", "", "fonts/DejaVuSans.ttf", uni=True)
-        self.set_font("DejaVu", size=14)
+def generate_checklist_items(destination, season, days, trip_type, mode, solo_info=None, family_info=None):
+    items = {}
+    dest_info = get_destination_info(destination, season)
 
-    def header(self):
-        self.cell(200, 10, txt="Умный чек-лист для путешествия", ln=True, align='C')
-        self.ln(5)
-
-    def footer(self):
-        self.set_y(-15)
-        self.set_font("DejaVu", size=8)
-        self.cell(0, 10, "Сгенерировано TravelCheck Pro", 0, 0, 'C')
-
-
-def generate_pdf(destination: str, season: str, days: int, trip_type: str,
-                 mode: str, solo_info: Optional[Dict] = None,
-                 family_info: Optional[Dict] = None) -> str:
-    # Основные категории
-    checklist = {
-        'documents': [],
-        'clothes': [],
-        'hygiene': [],
-        'electronics': [],
-        'medicine': [],
-        'special': [],
-        'children': [],
-        'other': []
+    # Базовые категории
+    categories = {
+        "Документы": ["Паспорт", "Билеты", "Страховка", "Водительские права", "Бронь отелей"],
+        "Электроника": ["Телефон", "Зарядные устройства", "Power bank", "Наушники", "Адаптер для розеток"],
+        "Гигиена": ["Зубная щетка", "Зубная паста", "Шампунь", "Гель для душа", "Дезодорант"],
+        "Одежда": ["Нижнее белье", "Носки", "Футболки", "Шорты/Брюки", "Пижама"],
+        "Аптечка": ["Обезболивающее", "Пластыри", "Антисептик", "Лекарства от аллергии"]
     }
 
-    # 1. Базовые документы и вещи
-    checklist['documents'].extend([
-        "Паспорт (+копия)",
-        "Билеты (электронные/бумажные)",
-        "Страховка",
-        "Водительские права (если нужно)",
-        "Бронь отелей/аренды"
-    ])
+    # Сезонные вещи
+    if season == "Зима":
+        categories["Одежда"].extend(["Теплая куртка", "Шапка", "Перчатки", "Шарф", "Термобелье"])
+        categories["Аптечка"].append("Средство от простуды")
+    elif season == "Лето":
+        categories["Одежда"].extend(["Шорты", "Футболки", "Головной убор", "Купальник/Плавки"])
+        categories["Гигиена"].extend(["Солнцезащитный крем", "Средство после загара"])
+        categories["Аптечка"].append("Средство от солнечных ожогов")
+    elif season == "Осень":
+        categories["Одежда"].extend(["Дождевик", "Зонт", "Ветровка"])
+        categories["Аптечка"].append("Средство от простуды")
+    elif season == "Весна":
+        categories["Одежда"].extend(["Легкая куртка", "Джинсы", "Свитер"])
 
-    checklist['electronics'].extend([
-        "Телефон + зарядка",
-        "Power bank",
-        "Универсальный адаптер для розеток",
-        "Наушники"
-    ])
+    # Тип поездки
+    if trip_type == "Пляж":
+        categories["Аксессуары"] = ["Пляжное полотенце", "Очки для плавания", "Сланцы", "Пляжная сумка"]
+    elif trip_type == "Город":
+        categories["Одежда"].extend(["Удобная обувь", "Ветровка"])
+        categories["Дополнительно"] = ["Карта города", "Путеводитель"]
+    elif trip_type == "Горы":
+        categories["Одежда"].extend(["Треккинговые ботинки", "Термобелье"])
+        categories["Снаряжение"] = ["Рюкзак", "Фонарик", "Термос"]
+    elif trip_type == "Рабочая":
+        categories["Работа"] = ["Ноутбук", "Блокнот", "Ручки", "Визитки"]
 
-    # 2. Логика для разных типов стран
-    def add_country_specific_items():
-        # Классификация стран
-        muslim_countries = ["ОАЭ", "Турция", "Египет", "Катар"]
-        asian_countries = ["Таиланд", "Индия", "Вьетнам", "Китай"]
-        cold_countries = ["Финляндия", "Норвегия", "Исландия", "Канада"]
-
-        # Жаркие страны
-        if any(c.lower() in destination.lower() for c in muslim_countries + asian_countries):
-            checklist['special'].extend([
-                "Солнцезащитный крем SPF 50+",
-                "Солнцезащитные очки",
-                "Головной убор"
-            ])
-
-        # Мусульманские страны
-        if any(c.lower() in destination.lower() for c in muslim_countries):
-            checklist['clothes'].extend([
-                "Одежда, закрывающая плечи и колени (для женщин)",
-                "Пляжная одежда (скромная)"
-            ])
-
-        # Азиатские страны
-        if any(c.lower() in destination.lower() for c in asian_countries):
-            checklist['medicine'].extend([
-                "Активированный уголь",
-                "Средство от расстройства желудка",
-                "Репеллент от комаров"
-            ])
-            checklist['hygiene'].append("Влажная туалетная бумага")
-
-        # Холодные страны
-        if any(c.lower() in destination.lower() for c in cold_countries):
-            checklist['clothes'].extend([
-                "Термобелье",
-                "Теплые носки (2-3 пары)",
-                "Шапка/перчатки"
-            ])
-
-    # 3. Логика для сезона и типа поездки
-    def add_seasonal_items():
-        seasonal_clothes = {
-            "Лето": [
-                "Футболки (3-5 шт)",
-                "Шорты/юбки",
-                "Легкая обувь",
-                "Купальник/плавки (2 шт)"
-            ],
-            "Зима": [
-                "Теплая куртка",
-                "Шарф",
-                "Утепленные ботинки",
-                "Термобелье"
-            ],
-            "Весна/Осень": [
-                "Дождевик/зонт",
-                "Ветровка",
-                "Универсальная обувь"
-            ]
-        }
-
-        trip_specific = {
-            "Пляж": [
-                "Пляжное полотенце",
-                "Сланцы",
-                "Водонепроницаемый чехол для телефона"
-            ],
-            "Горы": [
-                "Треккинговые ботинки",
-                "Термос",
-                "Походная аптечка"
-            ],
-            "Город": [
-                "Удобная обувь для ходьбы",
-                "Городской рюкзак",
-                "Путеводитель"
-            ]
-        }
-
-        # Выбираем сезон
-        season_key = "Лето" if season == "Лето" else "Зима" if season == "Зима" else "Весна/Осень"
-        checklist['clothes'].extend(seasonal_clothes.get(season_key, []))
-
-        # Добавляем специфичные для поездки вещи
-        checklist['clothes'].extend(trip_specific.get(trip_type, []))
-
-    # 4. Логика для пола и возраста
-    def add_personal_items():
-        if mode == "Один" and solo_info:
-            gender = solo_info.get("gender")
-            age = solo_info.get("age", 25)
-
-            # Гигиена по полу
-            if gender == "Мужчина":
-                checklist['hygiene'].extend([
-                    "Бритва/станок",
-                    "Пена для бритья",
-                    "Мужской дезодорант"
-                ])
-            elif gender == "Женщина":
-                checklist['hygiene'].extend([
-                    "Косметичка",
-                    "Средства гигиены",
-                    "Заколки/резинки"
-                ])
-
-            # Возрастные особенности
-            if age < 18:
-                checklist['documents'].append("Согласие родителей")
-            elif age > 60:
-                checklist['medicine'].extend([
-                    "Все необходимые лекарства",
-                    "Медицинская карта (копия)"
-                ])
-
-    # 5. Логика для семьи с детьми
-    def add_family_items():
-        if mode == "Семья" and family_info:
-            adults = family_info.get("adults", 2)
-            children_ages = family_info.get("children", [])
-
-            # Для взрослых
-            checklist['hygiene'].extend([
-                "Гигиенические принадлежности (x{})".format(adults),
-                "Полотенца (x{})".format(adults)
-            ])
-
-            # Для детей
-            for age in children_ages:
-                if age < 2:  # Младенцы
-                    checklist['children'].extend([
-                        "Подгузники (запас)",
-                        "Детское питание",
-                        "Соски/бутылочки",
-                        "Крем под подгузник"
-                    ])
-                elif age < 6:  # Дошкольники
-                    checklist['children'].extend([
-                        "Любимая игрушка",
-                        "Детская посуда",
-                        "Влажные салфетки"
-                    ])
-                else:  # Школьники/подростки
-                    checklist['children'].append("Развлечения для ребенка")
-
-    # 6. Логика для длительности поездки
-    def adjust_for_duration():
-        if days <= 3:  # Короткая поездка
-            checklist['clothes'] = [item.replace("(3-5 шт)", "(2-3 шт)")
-                                    for item in checklist['clothes']]
-        elif days > 14:  # Длительная поездка
-            checklist['other'].extend([
-                "Стиральный порошок (мини)",
-                "Дополнительная сумка",
-                "Больше гигиенических средств"
-            ])
-
-    # 7. Дополнительные умные советы
-    def add_smart_tips():
-        if days > 7:
-            checklist['other'].append("Зарядка для устройств (удвоенное количество)")
-
-        if "пляж" in trip_type.lower():
-            checklist['special'].append("Водонепроницаемый чехол для документов")
-
-    # Собираем все вместе
-    add_country_specific_items()
-    add_seasonal_items()
-    add_personal_items()
-    add_family_items()
-    adjust_for_duration()
-    add_smart_tips()
-
-    # Генерация PDF
-    pdf = PDF()
-    pdf.add_page()
-
-    # Заголовок
-    pdf.set_font("DejaVu", size=16)
-    pdf.cell(200, 10, txt=f"Умный чек-лист: {destination}", ln=True, align='C')
-    pdf.ln(5)
-
-    # Мета-информация
-    pdf.set_font("DejaVu", size=12)
-    pdf.cell(200, 8, txt=f"▸ Сезон: {season} ▸ Дней: {days} ▸ Тип: {trip_type}", ln=True)
-    pdf.cell(200, 8, txt=f"▸ Путешественники: {get_travelers_description(mode, solo_info, family_info)}", ln=True)
-    pdf.ln(10)
-
-    # Список вещей по категориям
-    pdf.set_font("DejaVu", size=12)
-
-    for category, items in checklist.items():
-        if items:  # Только непустые категории
-            pdf.set_font("DejaVu", size=12, style='B')
-            pdf.cell(200, 8, txt=f"{get_category_name(category)}:", ln=True)
-            pdf.set_font("DejaVu", size=10)
-
-            for i, item in enumerate(items, 1):
-                pdf.cell(200, 7, txt=f"  {i}. ☐ {item}", ln=True)
-            pdf.ln(5)
-
-    filename = f"Travel_Checklist_{destination.replace(' ', '_')}.pdf"
-    pdf.output(filename)
-    return filename
-
-
-def get_travelers_description(mode: str, solo_info: Optional[Dict], family_info: Optional[Dict]) -> str:
+    # Для одного человека
     if mode == "Один" and solo_info:
-        gender = solo_info.get("gender", "")
-        age = solo_info.get("age", "")
-        return f"{gender}, {age} лет"
-    elif mode == "Семья" and family_info:
-        adults = family_info.get("adults", 2)
+        gender = solo_info.get("gender")
+        age = solo_info.get("age")
+        if gender == "Женщина":
+            categories["Гигиена"].extend(["Косметика", "Заколки", "Средства для макияжа"])
+        if age and age < 18:
+            categories["Документы"].append("Согласие родителей на выезд")
+
+    # Для семьи
+    if mode == "Семья" and family_info:
         children = family_info.get("children", [])
-        return f"{adults} взрослых + {len(children)} детей"
-    return ""
+        categories["Для детей"] = []
+        if children:
+            for age in children:
+                if age < 3:
+                    categories["Для детей"].extend(["Подгузники", "Влажные салфетки", "Детское питание"])
+                elif age < 10:
+                    categories["Для детей"].extend(["Игрушки", "Книжки", "Раскраски"])
+
+    return categories, dest_info
 
 
-def get_category_name(category: str) -> str:
-    names = {
-        'documents': '📄 Документы',
-        'clothes': '👕 Одежда',
-        'hygiene': '🧴 Гигиена',
-        'electronics': '📱 Электроника',
-        'medicine': '💊 Аптечка',
-        'special': '🌟 Специальные вещи',
-        'children': '🧸 Для детей',
-        'other': '📦 Прочее'
-    }
-    return names.get(category, category.capitalize())
+def generate_pdf(destination, season, days, trip_type, mode, solo_info=None, family_info=None):
+    # Получаем данные для чек-листа
+    categories, dest_info = generate_checklist_items(destination, season, days, trip_type, mode, solo_info, family_info)
+
+    # Создаем PDF в памяти
+    buffer = io.BytesIO()
+    c = canvas.Canvas(buffer, pagesize=A4)
+    width, height = A4
+
+    # Стили для текста
+    styles = getSampleStyleSheet()
+    title_style = ParagraphStyle(
+        'Title',
+        parent=styles['Heading1'],
+        fontName='DejaVuSans-Bold',
+        fontSize=18,
+        alignment=TA_CENTER,
+        spaceAfter=20,
+        textColor=colors.HexColor('#4361ee')
+    )
+
+    subtitle_style = ParagraphStyle(
+        'Subtitle',
+        parent=styles['Heading2'],
+        fontName='DejaVuSans',
+        fontSize=12,
+        alignment=TA_CENTER,
+        spaceAfter=30,
+        textColor=colors.HexColor('#6c757d')
+    )
+
+    # Шапка документа
+    title = Paragraph(f"Чек-лист для поездки в {destination}", title_style)
+    subtitle_text = f"Сезон: {season} | Температура: {dest_info['temp']} | Длительность: {days} дней"
+    subtitle = Paragraph(subtitle_text, subtitle_style)
+    desc = Paragraph(f"<i>{dest_info['description']}</i>", subtitle_style)
+
+    # Рисуем шапку
+    title.wrapOn(c, width - 40, height)
+    title.drawOn(c, 20, height - 40)
+    subtitle.wrapOn(c, width - 40, height)
+    subtitle.drawOn(c, 20, height - 80)
+    desc.wrapOn(c, width - 40, height)
+    desc.drawOn(c, 20, height - 110)
+
+    # Начинаем рисовать категории
+    y_position = height - 150
+
+    for category, items in categories.items():
+        # Рисуем название категории
+        c.setFont("DejaVuSans-Bold", 14)
+        c.setFillColor(colors.HexColor('#3a0ca3'))
+        c.drawString(30, y_position, category)
+        y_position -= 20
+
+        # Рисуем элементы категории
+        c.setFont("DejaVuSans", 11)
+        c.setFillColor(colors.black)
+        for item in items:
+            c.drawString(40, y_position, f"☐ {item}")
+            y_position -= 16
+
+            # Проверяем, не вышли ли за пределы страницы
+            if y_position < 50:
+                c.showPage()
+                y_position = height - 50
+                c.setFont("DejaVuSans", 12)
+
+    # Добавляем подпись в конце
+    c.showPage()
+    c.setFont("DejaVuSans-Bold", 16)
+    c.setFillColor(colors.HexColor('#4361ee'))
+    c.drawCentredString(width / 2, height / 2, "Приятного путешествия!")
+    c.setFont("DejaVuSans", 12)
+    c.drawCentredString(width / 2, height / 2 - 30, "Сгенерировано с помощью TravelCheck")
+
+    c.save()
+    buffer.seek(0)
+    return buffer.read()

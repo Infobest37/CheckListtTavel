@@ -1,50 +1,90 @@
 #app
-from flask import Flask, render_template, request, send_file, flash, redirect, url_for
+from flask import Flask, render_template, request, send_file, flash, redirect, url_for, send_from_directory, \
+    make_response
 from generate_checklist import generate_pdf
+import os
+from werkzeug.utils import secure_filename
+import io
 
 app = Flask(__name__)
-app.secret_key = 'your-secret-key-here'  # Необходимо для работы flash-сообщений
+app.secret_key = 'your-secret-key-here'
+app.config['UPLOAD_FOLDER'] = 'temp_pdfs'
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max
+
+if not os.path.exists(app.config['UPLOAD_FOLDER']):
+    os.makedirs(app.config['UPLOAD_FOLDER'])
+
 
 @app.route("/", methods=["GET", "POST"])
 def index():
     if request.method == "POST":
         try:
+            # Получаем данные из формы
             mode = request.form["mode"]
             destination = request.form["destination"]
             season = request.form["season"]
             days = int(request.form["days"])
             trip_type = request.form["trip_type"]
 
-            if mode == "Один":
-                gender = request.form["gender"]
-                age_str = request.form.get("age", "0")  # Получаем возраст как строку, по умолчанию "0"
-                age = int(age_str) if age_str.strip() else 0  # Преобразуем в число, если не пусто
-                filename = generate_pdf(destination, season, days, trip_type, mode,
-                                     solo_info={"gender": gender, "age": age})
+            # Генерация PDF
+            pdf_data = generate_pdf(
+                destination, season, days, trip_type, mode,
+                solo_info={
+                    "gender": request.form["gender"],
+                    "age": int(request.form.get("age", "").strip()) if request.form.get("age", "").strip().isdigit() else 0
+                } if mode == "Один" else None,
+                family_info={
+                    "adults": int(request.form["adults"]),
+                    "children": [
+                        int(a.strip()) for a in request.form.get("children_ages", "").split(',')
+                        if a.strip().isdigit()
+                    ] if request.form["has_children"] == "Да" else []
+                } if mode == "Семья" else None
+            )
 
-            else:  # mode == "Семья"
-                adults = int(request.form["adults"])
-                has_children = request.form["has_children"]
-                children_ages = []
-                if has_children == "Да":
-                    children_ages_str = request.form.get("children_ages", "")
-                    children_ages = [int(a.strip()) for a in children_ages_str.split(',') if a.strip().isdigit()]
-                filename = generate_pdf(destination, season, days, trip_type, mode,
-                                     family_info={"adults": adults, "children": children_ages})
+            # Создаем временный файл для предпросмотра
+            filename = secure_filename(f"checklist_{destination}.pdf")
+            temp_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            with open(temp_path, 'wb') as f:
+                f.write(pdf_data)
 
-            return send_file(filename, as_attachment=True)
+            return redirect(url_for('preview_pdf', filename=filename))
 
         except ValueError as e:
             flash(f"Ошибка ввода данных: {str(e)}", "error")
-            return redirect(url_for('index'))
         except Exception as e:
             flash(f"Произошла ошибка: {str(e)}", "error")
-            return redirect(url_for('index'))
 
     return render_template("index.html")
 
-if __name__ == "__main__":
-    import os
 
-    port = int(os.environ.get('PORT', 5000))  # Получаем порт от хостинга или используем 5000 по умолчанию
-    app.run(host='0.0.0.0', port=port)
+@app.route('/preview/<filename>')
+def preview_pdf(filename):
+    return render_template('preview.html', filename=filename)
+
+
+@app.route('/pdf/<filename>')
+def serve_pdf(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
+
+@app.route('/download/<filename>')
+def download_pdf(filename):
+    response = send_from_directory(app.config['UPLOAD_FOLDER'], filename, as_attachment=True)
+    # Удаляем временный файл после отправки
+    try:
+        os.remove(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+    except:
+        pass
+    return response
+
+
+@app.route('/print/<filename>')
+def print_pdf(filename):
+    response = make_response(send_from_directory(app.config['UPLOAD_FOLDER'], filename))
+    response.headers['Content-Disposition'] = 'inline; filename="checklist.pdf"'
+    return response
+
+
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', port=5000, debug=True)
