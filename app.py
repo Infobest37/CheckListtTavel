@@ -3,6 +3,7 @@ from flask import Flask, render_template, request, send_file, flash, redirect, u
     make_response
 from generate_checklist import generate_pdf
 import os
+import time
 from werkzeug.utils import secure_filename
 import io
 
@@ -19,41 +20,47 @@ if not os.path.exists(app.config['UPLOAD_FOLDER']):
 def index():
     if request.method == "POST":
         try:
-            # Получаем данные из формы
-            mode = request.form["mode"]
-            destination = request.form["destination"]
-            season = request.form["season"]
-            days = int(request.form["days"])
-            trip_type = request.form["trip_type"]
+            print("Получены данные формы:", request.form)
+
+            # Проверяем обязательные поля
+            required_fields = ['mode', 'season', 'days', 'trip_type']
+            for field in required_fields:
+                if field not in request.form:
+                    raise ValueError(f"Отсутствует обязательное поле: {field}")
 
             # Генерация PDF
             pdf_data = generate_pdf(
-                destination, season, days, trip_type, mode,
+                destination=request.form.get('city') or request.form.get('country'),
+                season=request.form['season'],
+                days=int(request.form['days']),
+                trip_type=request.form['trip_type'],
+                mode=request.form['mode'],
                 solo_info={
-                    "gender": request.form["gender"],
-                    "age": int(request.form.get("age", "").strip()) if request.form.get("age", "").strip().isdigit() else 0
-                } if mode == "Один" else None,
+                    "gender": request.form.get("gender"),
+                    "age": int(request.form.get("age", 0)) if request.form.get("age") else None
+                } if request.form['mode'] == "Один" else None,
                 family_info={
-                    "adults": int(request.form["adults"]),
+                    "adults": int(request.form.get("adults", 1)),
                     "children": [
                         int(a.strip()) for a in request.form.get("children_ages", "").split(',')
                         if a.strip().isdigit()
-                    ] if request.form["has_children"] == "Да" else []
-                } if mode == "Семья" else None
+                    ] if request.form.get("has_children") == "Да" else []
+                } if request.form['mode'] == "Семья" else None
             )
 
-            # Создаем временный файл для предпросмотра
-            filename = secure_filename(f"checklist_{destination}.pdf")
+            # Сохраняем временный файл
+            filename = f"checklist_{int(time.time())}.pdf"
             temp_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+
             with open(temp_path, 'wb') as f:
                 f.write(pdf_data)
 
+            print(f"PDF успешно сгенерирован: {filename}")
             return redirect(url_for('preview_pdf', filename=filename))
 
-        except ValueError as e:
-            flash(f"Ошибка ввода данных: {str(e)}", "error")
         except Exception as e:
-            flash(f"Произошла ошибка: {str(e)}", "error")
+            print(f"Ошибка при генерации PDF: {str(e)}")
+            return f"Ошибка сервера: {str(e)}", 500
 
     return render_template("index.html")
 

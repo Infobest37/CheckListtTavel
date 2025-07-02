@@ -70,7 +70,7 @@ def generate_checklist_items(destination, season, days, trip_type, mode, solo_in
         age = solo_info.get("age")
         if gender == "Женщина":
             categories["Гигиена"].extend(["Косметика", "Заколки", "Средства для макияжа"])
-        if age and age < 18:
+        if age is not None and age < 18:  # Добавлена проверка на None
             categories["Документы"].append("Согласие родителей на выезд")
 
     # Для семьи
