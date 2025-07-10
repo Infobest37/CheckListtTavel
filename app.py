@@ -1,32 +1,44 @@
 #app
-from flask import Flask, render_template, request, send_file, flash, redirect, url_for, send_from_directory, \
-    make_response
+from flask import Flask, render_template, request,  redirect, url_for, send_from_directory, make_response, jsonify
 from generate_checklist import generate_pdf
 import os
 import time
-from werkzeug.utils import secure_filename
-import io
+from data_city import DESTINATION_DATA, Cities  # Импортируем данные
 
 app = Flask(__name__)
 app.secret_key = 'your-secret-key-here'
 app.config['UPLOAD_FOLDER'] = 'temp_pdfs'
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
 if not os.path.exists(app.config['UPLOAD_FOLDER']):
     os.makedirs(app.config['UPLOAD_FOLDER'])
 
-
+# @app.route("/api/destinations")
+# def get_destinations():
+#     """API для получения данных о направлениях"""
+#     cities = {country: list(data.keys()) for country, data in DESTINATION_DATA.items()}
+#     return jsonify({
+#         "destination_data": DESTINATION_DATA,
+#         "country_cities": Cities
+#     })
+def clear_old_pdfs(folder, age_seconds=3600):
+    now = time.time()
+    for filename in os.listdir(folder):
+        path = os.path.join(folder, filename)
+        if os.path.isfile(path) and path.endswith(".pdf"):
+            if now - os.path.getmtime(path) > age_seconds:
+                os.remove(path)
 @app.route("/", methods=["GET", "POST"])
 def index():
     if request.method == "POST":
+        clear_old_pdfs(app.config['UPLOAD_FOLDER'])
+    if request.method == "POST":
         try:
-            print("Получены данные формы:", request.form)
-
             # Проверяем обязательные поля
             required_fields = ['mode', 'season', 'days', 'trip_type']
             for field in required_fields:
                 if field not in request.form:
-                    raise ValueError(f"Отсутствует обязательное поле: {field}")
+                    return "Не заполнены обязательные поля", 400
 
             # Генерация PDF
             pdf_data = generate_pdf(
@@ -48,18 +60,15 @@ def index():
                 } if request.form['mode'] == "Семья" else None
             )
 
-            # Сохраняем временный файл
             filename = f"checklist_{int(time.time())}.pdf"
             temp_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
 
             with open(temp_path, 'wb') as f:
                 f.write(pdf_data)
 
-            print(f"PDF успешно сгенерирован: {filename}")
             return redirect(url_for('preview_pdf', filename=filename))
 
         except Exception as e:
-            print(f"Ошибка при генерации PDF: {str(e)}")
             return f"Ошибка сервера: {str(e)}", 500
 
     return render_template("index.html")
