@@ -225,32 +225,49 @@
       animation: fadeIn 0.3s ease;
     }
 
-    @media (max-width: 768px) {
-      body {
-        padding: 1rem;
-      }
-      .form-card {
-        padding: 1.5rem;
-      }
-      .travel-mode-selector {
-        flex-direction: column;
-      }
-      .destination-tabs {
-        flex-direction: column;
-        border-bottom: none;
-      }
-      .destination-tab {
-        border-radius: 8px;
-        margin-bottom: 0.5rem;
-        border: 1px solid #dee2e6;
-      }
-      .destination-tab.active {
-        border-bottom: 1px solid #dee2e6;
-      }
-    }
+    @media (max-width: 576px) {
+  .header-title {
+    font-size: 1.8rem;
+  }
+
+  .travel-image {
+    height: 80px;
+  }
+
+  .travel-mode-option,
+  .trip-type-option {
+    padding: 1rem 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  .form-control, .form-select {
+    font-size: 0.9rem;
+    padding: 0.6rem 1rem;
+  }
+
+  .btn-primary {
+    font-size: 0.95rem;
+    padding: 0.85rem;
+  }
+
+  .form-card {
+    padding: 1rem;
+    border-radius: 16px;
+  }
+
+  .destination-tab {
+    font-size: 0.9rem;
+    padding: 0.6rem 1rem;
+  }
+}
   </style>
 
 </head>
+<style>
+  html {
+    scroll-behavior: smooth;
+  }
+</style>
 <body>
   <div class="travel-container">
     <div class="header-section">
