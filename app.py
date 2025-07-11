@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, send_from_directory, redirect, url_for
+from flask import Flask, render_template, request, send_from_directory, pdf_storage, send_file, redirect, url_for
 from generate_checklist import generate_pdf
 from io import BytesIO
 import os
@@ -107,13 +107,16 @@ def download_pdf(filename):
 
 @app.route('/print/<filename>')
 def print_pdf(filename):
-    # Открываем PDF для печати
-    response = send_from_directory(
-        app.config['UPLOAD_FOLDER'],
-        filename
+    if filename not in pdf_storage:
+        return "Файл не найден или был удалён", 404
+
+    # Отдаём PDF для просмотра в браузере (не для скачивания)
+    return send_file(
+        BytesIO(pdf_storage[filename]),
+        mimetype='application/pdf',
+        download_name=filename,
+        as_attachment=False  # Важно для печати!
     )
-    response.headers['Content-Disposition'] = 'inline; filename="checklist.pdf"'
-    return response
 
 
 if __name__ == "__main__":
