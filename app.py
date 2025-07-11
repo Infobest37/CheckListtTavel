@@ -13,14 +13,7 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 if not os.path.exists(app.config['UPLOAD_FOLDER']):
     os.makedirs(app.config['UPLOAD_FOLDER'])
 
-# @app.route("/api/destinations")
-# def get_destinations():
-#     """API для получения данных о направлениях"""
-#     cities = {country: list(data.keys()) for country, data in DESTINATION_DATA.items()}
-#     return jsonify({
-#         "destination_data": DESTINATION_DATA,
-#         "country_cities": Cities
-#     })
+
 def clear_old_pdfs(folder, age_seconds=3600):
     now = time.time()
     for filename in os.listdir(folder):
