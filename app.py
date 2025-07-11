@@ -25,10 +25,11 @@ def clear_old_pdfs(folder, age_seconds=3600):
             if now - os.path.getmtime(path) > age_seconds:
                 os.remove(path)
 
-email = request.form.get("email")
+
 @app.route("/", methods=["GET", "POST"])
 def index():
     if request.method == "POST":
+        email = request.form.get("email")
         if email:
             print(f"Пользователь указал email: {email}")
         clear_old_pdfs(app.config['UPLOAD_FOLDER'])
