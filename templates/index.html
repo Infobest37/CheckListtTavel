@@ -258,7 +258,22 @@
       <h1 class="header-title">Генератор чек-листов</h1>
       <p class="header-subtitle">Создайте персонализированный список вещей для вашего путешествия</p>
     </div>
+<section style="padding: 30px; text-align: center;">
+  <h1 style="font-size: 2.5em;">🧳 Умный чек-лист для путешествия</h1>
+  <p style="font-size: 1.2em; max-width: 700px; margin: 0 auto;">
+    Устали забывать важные вещи перед поездкой? Наш онлайн-сервис поможет вам собрать всё — от паспорта до игрушек для детей.
+    Просто выберите страну, сезон, тип поездки — и получите персональный PDF-чек-лист!
+  </p>
 
+  <ul style="text-align: left; max-width: 600px; margin: 30px auto; font-size: 1.1em;">
+    <li>✔️ Учитывает сезон и направление</li>
+    <li>✔️ Чек-листы для одиночных и семейных поездок</li>
+    <li>✔️ Автоматически создаёт готовый PDF</li>
+    <li>✔️ Подходит для Турции, Европы, Азии и СНГ</li>
+  </ul>
+
+  <p style="font-size: 1.2em;">Заполните форму ниже и получите свой чек-лист за 30 секунд 👇</p>
+</section>
     <div class="form-card">
       <form id="checklistForm" method="post">
         <!-- Выбор режима путешествия -->
@@ -412,12 +427,36 @@
             </div>
           </div>
         </div>
+<!-- Поле Email -->
+<div class="mb-3">
+  <label class="form-label">Email (необязательно)</label>
+  <div class="input-group">
+    <span class="input-group-text"><i class="bi bi-envelope-fill"></i></span>
+    <input type="email" class="form-control" name="email" placeholder="email@example.com">
+  </div>
+</div>
 
-        <div class="d-grid">
+<!-- Кнопка генерации -->
+ <div class="d-grid">
           <button type="submit" class="btn btn-primary btn-lg">
             <i class="bi bi-file-earmark-pdf"></i> Сгенерировать чек-лист
           </button>
         </div>
+        <div class="mt-4 text-center">
+  <p>Поделитесь с друзьями:</p>
+  <a href="https://t.me/share/url?url=https://checklistttavel.onrender.com" target="_blank" class="btn btn-outline-primary btn-sm me-2">
+    <i class="bi bi-telegram"></i> Telegram
+  </a>
+  <a href="https://wa.me/?text=https://checklistttavel.onrender.com" target="_blank" class="btn btn-outline-success btn-sm me-2">
+    <i class="bi bi-whatsapp"></i> WhatsApp
+  </a>
+  <a href="https://www.facebook.com/sharer/sharer.php?u=https://checklistttavel.onrender.com" target="_blank" class="btn btn-outline-primary btn-sm">
+    <i class="bi bi-facebook"></i> Facebook
+  </a>
+          <a href="https://boosty.to/твоя_ссылка" target="_blank" class="btn btn-outline-primary">
+  💖 Поддержать проект
+</a>
+</div>
       </form>
     </div>
   </div>
@@ -623,6 +662,7 @@ async function generateChecklist() {
             });
         }
     });
+
   </script>
 </body>
 </html>
