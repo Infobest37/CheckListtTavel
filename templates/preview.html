@@ -40,11 +40,9 @@
         </div>
 
         <div class="action-buttons">
-  <a href="{{ url_for('print_pdf', filename=filename) }}"
-   class="btn btn-outline-primary btn-lg"
-   onclick="window.open(this.href, '_blank'); return false;">
-  <i class="bi bi-printer"></i> Печать
-</a>
+  <a href="{{ url_for('download_pdf', filename=filename) }}" class="btn btn-primary btn-lg">
+    <i class="bi bi-download"></i> Скачать PDF
+  </a>
 
   <a href="{{ url_for('print_pdf', filename=filename) }}" class="btn btn-outline-primary btn-lg" target="_blank">
     <i class="bi bi-printer"></i> Печать
