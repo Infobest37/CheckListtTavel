@@ -461,50 +461,33 @@
         }
     }
 
-    async function generateChecklist() {
-        const form = document.getElementById('checklistForm');
-        if (!form) return;
+async function generateChecklist() {
+    const form = document.getElementById('checklistForm');
+    if (!form) return;
 
-        const formData = new FormData(form);
-
-        // Валидация
-        if (formData.get('mode') === 'Один' && !formData.get('age')) {
-            alert('Пожалуйста, укажите ваш возраст');
-            return;
-        }
-
-        try {
-            // Показываем индикатор загрузки
-            const submitBtn = form.querySelector('button[type="submit"]');
-            if (submitBtn) {
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Генерация...';
-            }
-
-            // Отправляем форму
-            const response = await fetch('/', {
-                method: 'POST',
-                body: formData,
-                redirect: 'follow'
-            });
-
-            // Если нужно обработать ответ
-            if (response.redirected) {
-                window.location.href = response.url;
-            }
-        } catch (error) {
-            console.error('Ошибка:', error);
-            alert('Ошибка при генерации: ' + error.message);
-        } finally {
-            // Восстанавливаем кнопку
-            const submitBtn = form.querySelector('button[type="submit"]');
-            if (submitBtn) {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="bi bi-file-earmark-pdf"></i> Сгенерировать чек-лист';
-            }
-        }
+    // Валидация
+    if (form.querySelector('input[name="mode"]:checked').value === 'Один' &&
+        !form.querySelector('input[name="age"]').value) {
+        alert('Пожалуйста, укажите ваш возраст');
+        return;
     }
 
+    try {
+        // Показываем индикатор загрузки
+        const submitBtn = form.querySelector('button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Генерация...';
+        }
+
+        // Отправляем форму стандартным способом
+        form.submit();
+
+    } catch (error) {
+        console.error('Ошибка:', error);
+        alert('Ошибка при генерации: ' + error.message);
+    }
+}
     function updateCitiesList() {
         const countrySelect = document.querySelector('select[name="country"]');
         const citySelect = document.querySelector('select[name="city"]');

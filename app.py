@@ -1,19 +1,22 @@
-#app
-from flask import Flask, render_template, request,  redirect, url_for, send_from_directory, make_response, jsonify
+from flask import Flask, render_template, request, send_from_directory, redirect, url_for
 from generate_checklist import generate_pdf
+from io import BytesIO
 import os
 import time
-from data_city import DESTINATION_DATA, Cities  # Импортируем данные
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 app.secret_key = 'your-secret-key-here'
-app.config['UPLOAD_FOLDER'] = 'temp_pdfs'
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
+app.config['UPLOAD_FOLDER'] = 'temp_pdfs'  # Временная папка для PDF
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB
 
+# Создаем папку для временных файлов
 if not os.path.exists(app.config['UPLOAD_FOLDER']):
     os.makedirs(app.config['UPLOAD_FOLDER'])
 
 
+# Функция для очистки старых PDF
 def clear_old_pdfs(folder, age_seconds=3600):
     now = time.time()
     for filename in os.listdir(folder):
@@ -21,13 +24,15 @@ def clear_old_pdfs(folder, age_seconds=3600):
         if os.path.isfile(path) and path.endswith(".pdf"):
             if now - os.path.getmtime(path) > age_seconds:
                 os.remove(path)
+
+
 @app.route("/", methods=["GET", "POST"])
 def index():
     if request.method == "POST":
         clear_old_pdfs(app.config['UPLOAD_FOLDER'])
-    if request.method == "POST":
+
         try:
-            # Проверяем обязательные поля
+            # Проверка обязательных полей
             required_fields = ['mode', 'season', 'days', 'trip_type']
             for field in required_fields:
                 if field not in request.form:
@@ -53,15 +58,18 @@ def index():
                 } if request.form['mode'] == "Семья" else None
             )
 
+            # Сохраняем временный файл для предпросмотра
             filename = f"checklist_{int(time.time())}.pdf"
             temp_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
 
             with open(temp_path, 'wb') as f:
                 f.write(pdf_data)
 
+            # Перенаправляем на страницу предпросмотра
             return redirect(url_for('preview_pdf', filename=filename))
 
         except Exception as e:
+            app.logger.error(f"Error generating PDF: {str(e)}")
             return f"Ошибка сервера: {str(e)}", 500
 
     return render_template("index.html")
@@ -74,23 +82,36 @@ def preview_pdf(filename):
 
 @app.route('/pdf/<filename>')
 def serve_pdf(filename):
+    # Отдаем PDF для просмотра в iframe
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 
 @app.route('/download/<filename>')
 def download_pdf(filename):
-    response = send_from_directory(app.config['UPLOAD_FOLDER'], filename, as_attachment=True)
-    # Удаляем временный файл после отправки
+    # Отдаем PDF для скачивания
+    response = send_from_directory(
+        app.config['UPLOAD_FOLDER'],
+        filename,
+        as_attachment=True,
+        download_name='travel_checklist.pdf'
+    )
+
+    # Удаляем временный файл после скачивания
     try:
         os.remove(os.path.join(app.config['UPLOAD_FOLDER'], filename))
     except:
         pass
+
     return response
 
 
 @app.route('/print/<filename>')
 def print_pdf(filename):
-    response = make_response(send_from_directory(app.config['UPLOAD_FOLDER'], filename))
+    # Открываем PDF для печати
+    response = send_from_directory(
+        app.config['UPLOAD_FOLDER'],
+        filename
+    )
     response.headers['Content-Disposition'] = 'inline; filename="checklist.pdf"'
     return response
 
