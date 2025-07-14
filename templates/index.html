@@ -225,10 +225,23 @@
       animation: fadeIn 0.3s ease;
     }
 
-    @media (max-width: 576px) {
-  .header-title {
-    font-size: 1.8rem;
+ @media (max-width: 576px) {
+  .fixed-bottom-button {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 1rem;
+    background: #fff;
+    box-shadow: 0 -3px 10px rgba(0, 0, 0, 0.1);
+    z-index: 999;
   }
+
+  .form-card {
+    padding-bottom: 5rem; /* чтобы форма не пряталась под кнопкой */
+  }
+}
+
 
   .travel-image {
     height: 80px;
@@ -259,7 +272,7 @@
     font-size: 0.9rem;
     padding: 0.6rem 1rem;
   }
-}
+
   </style>
 
 </head>
@@ -271,20 +284,24 @@
 <body>
   <div class="travel-container">
     <div class="header-section">
-      <img src="https://cdn-icons-png.flaticon.com/512/201/201623.png" alt="Путешествие" class="travel-image">
+      <img src="/static/images/travel-illustration.svg" alt="Чек-лист" style="max-height: 200px; margin-bottom: 1rem;">
+
       <h1 class="header-title">Генератор чек-листов</h1>
       <p class="header-subtitle">Создайте персонализированный список вещей для вашего путешествия</p>
     </div>
+    <div class="fixed-bottom-button">
+  <button type="submit" class="btn btn-primary btn-lg w-100">
+    <i class="bi bi-file-earmark-pdf"></i> Сгенерировать чек-лист
+  </button>
+</div>
 <section class="text-center py-5 px-3" style="background: #f0f4ff; border-radius: 20px; max-width: 960px; margin: 0 auto;">
-  <h1 style="font-size: 2.2rem; font-weight: 700; color: #3a0ca3;" class="mb-3">
-    🧳 Умный чек-лист для путешествий
-  </h1>
-
-  <p style="font-size: 1.1rem; max-width: 700px; margin: 0 auto 1.5rem; color: #444;">
-    Устали забывать важные вещи перед поездкой? Наш сервис поможет собрать всё —
-    от паспорта до игрушек. Просто выберите страну, сезон, тип поездки — и получите
-    <strong>персональный PDF-чек-лист</strong>!
-  </p>
+  <h1 class="fw-bold mb-3" style="font-size: 2.4rem; color: #222;">
+  🧳 Умный чек-лист для путешествий
+</h1>
+<p class="mb-4" style="font-size: 1.15rem; max-width: 650px; margin: 0 auto; color: #555;">
+  Устали забывать важные вещи перед поездкой? Наш сервис поможет собрать всё — от паспорта до игрушек.
+  Просто выберите страну, сезон, тип поездки — и получите <strong style="color: #4361ee;">персональный PDF-чек-лист</strong>!
+</p>
 
   <ul class="text-start mx-auto mb-3" style="max-width: 600px; font-size: 1.05rem; line-height: 1.6;">
     <li>✔️ Учитывает сезон и направление</li>
@@ -304,7 +321,7 @@
         <div class="mb-4">
           <label class="form-label">Тип путешествия:</label>
           <div class="travel-mode-selector">
-            <div class="travel-mode-option active" onclick="selectMode('Один')">
+            <div class="travel-mode-option active" onclick="selectMode('Один', event)">
               <i class="bi bi-person-fill"></i>
               <div class="travel-mode-text">Один</div>
               <input type="radio" name="mode" value="Один" checked hidden>
@@ -322,7 +339,7 @@
           <label class="form-label">Куда вы направляетесь?</label>
 
           <div class="destination-tabs">
-            <div class="destination-tab active" onclick="selectTab('country')">Страна</div>
+            <div class="destination-tab active" onclick="selectTab('country', event)">Страна</div>
             <div class="destination-tab" onclick="selectTab('city')">Город</div>
           </div>
 
@@ -380,19 +397,19 @@
         <div class="mb-4">
           <label class="form-label">Тип поездки</label>
           <div class="trip-type-selector">
-            <div class="trip-type-option active" onclick="selectTripType('Пляж')">
+            <div class="trip-type-option active" onclick="selectTripType('Пляж', event)">
               <i class="bi bi-umbrella"></i> Пляж
               <input type="radio" name="trip_type" value="Пляж" checked hidden>
             </div>
-            <div class="trip-type-option" onclick="selectTripType('Город')">
+            <div class="trip-type-option" onclick="selectTripType('Город', event)">
               <i class="bi bi-building"></i> Город
               <input type="radio" name="trip_type" value="Город" hidden>
             </div>
-            <div class="trip-type-option" onclick="selectTripType('Горы')">
+            <div class="trip-type-option" onclick="selectTripType('Горы', event)">
               <i class="bi bi-mountain"></i> Горы
               <input type="radio" name="trip_type" value="Горы" hidden>
             </div>
-            <div class="trip-type-option" onclick="selectTripType('Рабочая')">
+            <div class="trip-type-option" onclick="selectTripType('Рабочая', event)">
               <i class="bi bi-briefcase"></i> Рабочая
               <input type="radio" name="trip_type" value="Рабочая" hidden>
             </div>
@@ -602,7 +619,7 @@ async function generateChecklist() {
         }
     }
 
-    function selectTab(tabName) {
+    function selectTab(tabName, event) {
         if (!event) return;
 
         document.querySelectorAll('.destination-tab').forEach(tab => {
