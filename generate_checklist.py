@@ -75,16 +75,16 @@ def generate_checklist_items(destination, season, days, trip_type, mode, solo_in
             categories["Документы"].append("Согласие родителей на выезд")
 
     # Для семьи
-    if mode == "Семья" and family_info:
+    if mode == "Семья" and family_info is not None:
         children = family_info.get("children", [])
-        categories["Для детей"] = []
-        if children:
+        if children:  # Только если есть дети
+            categories["Для детей"] = []
             for age in children:
                 if age < 3:
                     categories["Для детей"].extend(["Подгузники", "Влажные салфетки", "Детское питание"])
                 elif age < 10:
                     categories["Для детей"].extend(["Игрушки", "Книжки", "Раскраски"])
-
+    print(f"Debug - mode: {mode}, family_info: {family_info}, solo_info: {solo_info}")
     return categories, dest_info
 
 

@@ -35,11 +35,18 @@ def index():
         clear_old_pdfs(app.config['UPLOAD_FOLDER'])
 
         try:
-            # Проверка обязательных полей
-            required_fields = ['mode', 'season', 'days', 'trip_type']
-            for field in required_fields:
-                if field not in request.form:
-                    return "Не заполнены обязательные поля", 400
+
+            if request.form['mode'] == "Семья":
+                adults = request.form.get('adults', '1')
+                if not adults.isdigit() or int(adults) < 1:
+                    return "Укажите корректное количество взрослых", 400
+
+                children_ages = []
+                if request.form.get('has_children') == "Да":
+                    if not request.form.get('children_ages'):
+                        return "Укажите возраст детей", 400
+                    children_ages = [int(a.strip()) for a in request.form['children_ages'].split(',') if
+                                     a.strip().isdigit()]
 
             # Генерация PDF
             pdf_data = generate_pdf(
@@ -54,10 +61,7 @@ def index():
                 } if request.form['mode'] == "Один" else None,
                 family_info={
                     "adults": int(request.form.get("adults", 1)),
-                    "children": [
-                        int(a.strip()) for a in request.form.get("children_ages", "").split(',')
-                        if a.strip().isdigit()
-                    ] if request.form.get("has_children") == "Да" else []
+                    "children": children_ages if request.form.get('has_children') == "Да" else []
                 } if request.form['mode'] == "Семья" else None
             )
 
@@ -71,9 +75,11 @@ def index():
             # Перенаправляем на страницу предпросмотра
             return redirect(url_for('preview_pdf', filename=filename))
 
+
         except Exception as e:
             app.logger.error(f"Error generating PDF: {str(e)}")
             return f"Ошибка сервера: {str(e)}", 500
+
 
     return render_template("index.html")
 
