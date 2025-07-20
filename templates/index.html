@@ -4,11 +4,21 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Генератор чек-листов для путешествий | TravelCheck</title>
+  <meta name="description" content="Автоматический генератор персонализированных чек-листов для путешествий. Получите полный список вещей под ваш маршрут, сезон и состав компании.">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <!-- Используем Google Fonts с резервными шрифтами -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+  </style>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
   <style>
+    /* Ваши существующие стили */
     :root {
       --primary: #4361ee;
       --primary-light: #4895ef;
@@ -22,84 +32,124 @@
 
     body {
       font-family: 'Inter', sans-serif;
-      background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 2rem;
+      background-color: #f8f9fa;
       color: var(--dark);
       line-height: 1.6;
     }
 
-    .travel-container {
-      max-width: 900px;
-      width: 100%;
-      margin: 0 auto;
+    .hero-section {
+      background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+      color: white;
+      padding: 4rem 0;
+      border-radius: 0 0 20px 20px;
+      margin-bottom: 3rem;
+      box-shadow: 0 10px 30px rgba(67, 97, 238, 0.2);
     }
 
-    .header-section {
-      text-align: center;
-      margin-bottom: 2.5rem;
-      animation: fadeInDown 0.8s ease;
-    }
-
-    .travel-image {
-      height: 120px;
+    .hero-icon {
+      font-size: 4rem;
       margin-bottom: 1.5rem;
-      filter: drop-shadow(0 5px 15px rgba(67, 97, 238, 0.3));
+      color: white;
+      text-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
 
-    .header-title {
-      font-weight: 700;
+    .hero-title {
       font-size: 2.5rem;
+      font-weight: 800;
       margin-bottom: 1rem;
-      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
     }
 
-    .header-subtitle {
-      font-size: 1.1rem;
-      color: var(--gray);
-      max-width: 600px;
-      margin: 0 auto;
+    .hero-subtitle {
+      font-size: 1.2rem;
+      max-width: 700px;
+      margin: 0 auto 2rem;
+      opacity: 0.9;
+    }
+
+    .cta-button {
+  display: inline-block;
+  padding: 16px 32px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  background-color: #007bff; /* яркий синий */
+  color: white;
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 8px 16px rgba(0, 123, 255, 0.3);
+  transition: background-color 0.3s, transform 0.2s;
+  text-decoration: none;
+}
+
+.cta-button:hover {
+  background-color: #0056b3;
+  transform: translateY(-2px);
+}
+    .benefit-card {
+      background: white;
+      border-radius: 15px;
+      padding: 2rem;
+      height: 100%;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+      transition: all 0.3s ease;
+      border: 1px solid rgba(0,0,0,0.03);
+    }
+
+    .benefit-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+
+    .benefit-icon {
+      font-size: 2.5rem;
+      color: var(--primary);
+      margin-bottom: 1.5rem;
     }
 
     .form-card {
       background-color: white;
       border-radius: 20px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-      padding: 2.5rem;
-      width: 100%;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+      padding: 3rem;
       border: none;
-      transition: all 0.3s ease;
-      animation: fadeInUp 0.8s ease;
+      margin-top: -100px;
+      position: relative;
+      z-index: 10;
     }
 
-    .form-section {
-      display: none;
-      animation: fadeIn 0.5s ease;
+    .section-title {
+      font-weight: 700;
+      color: var(--dark);
+      margin-bottom: 1.5rem;
+      position: relative;
+      display: inline-block;
     }
 
-    .form-control, .form-select {
-      border-radius: 12px;
-      padding: 0.75rem 1.25rem;
-      border: 1px solid #e0e3e8;
-      transition: all 0.3s ease;
-      font-size: 0.95rem;
-    }
-
-    .form-control:focus, .form-select:focus {
-      border-color: var(--primary-light);
-      box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.15);
+    .section-title:after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 0;
+      width: 50px;
+      height: 4px;
+      background: var(--primary);
+      border-radius: 2px;
     }
 
     .form-label {
-      margin-bottom: 0.5rem;
       font-weight: 600;
+      margin-bottom: 0.5rem;
       color: var(--dark);
-      font-size: 0.95rem;
+    }
+
+    .form-control, .form-select {
+      border-radius: 10px;
+      padding: 0.75rem 1.25rem;
+      border: 1px solid #e0e3e8;
+    }
+
+    .form-control:focus, .form-select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.15);
     }
 
     .btn-primary {
@@ -109,10 +159,8 @@
       padding: 1rem;
       border-radius: 12px;
       transition: all 0.3s ease;
-      letter-spacing: 0.5px;
       font-size: 1rem;
       box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
-      margin-top: 1rem;
     }
 
     .btn-primary:hover {
@@ -121,21 +169,14 @@
       box-shadow: 0 6px 20px rgba(67, 97, 238, 0.4);
     }
 
-    .travel-mode-selector {
-      display: flex;
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-    }
-
     .travel-mode-option {
-      flex: 1;
-      text-align: center;
-      padding: 1.5rem 1rem;
       border-radius: 12px;
+      padding: 1.5rem 1rem;
       cursor: pointer;
       transition: all 0.3s ease;
       border: 2px solid rgba(67, 97, 238, 0.1);
       background-color: rgba(67, 97, 238, 0.05);
+      text-align: center;
     }
 
     .travel-mode-option:hover {
@@ -147,23 +188,14 @@
       background-color: rgba(67, 97, 238, 0.15);
     }
 
-    .trip-type-selector {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.75rem;
-      margin-top: 0.5rem;
-    }
-
     .trip-type-option {
-      flex: 1;
-      min-width: 100px;
-      text-align: center;
-      padding: 0.75rem 0.5rem;
       border-radius: 10px;
+      padding: 1rem 0.5rem;
       cursor: pointer;
       transition: all 0.3s ease;
       border: 2px solid rgba(67, 97, 238, 0.1);
       background-color: rgba(67, 97, 238, 0.05);
+      text-align: center;
     }
 
     .trip-type-option:hover {
@@ -175,353 +207,383 @@
       background-color: rgba(67, 97, 238, 0.15);
     }
 
-    .destination-info {
-      background-color: rgba(67, 97, 238, 0.05);
-      border-radius: 12px;
-      padding: 1rem;
-      margin-bottom: 1.5rem;
-      display: none;
+    .how-it-works-step {
+      text-align: center;
+      padding: 1.5rem;
     }
 
-    .destination-tabs {
+    .step-number {
+      width: 50px;
+      height: 50px;
+      background: var(--primary);
+      color: white;
+      border-radius: 50%;
       display: flex;
-      border-bottom: 1px solid #dee2e6;
-      margin-bottom: 1rem;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      margin: 0 auto 1rem;
     }
 
-    .destination-tab {
-      padding: 0.75rem 1.5rem;
-      cursor: pointer;
-      border: 1px solid transparent;
-      border-bottom: none;
-      border-radius: 8px 8px 0 0;
-      transition: all 0.3s ease;
-      font-weight: 500;
+    @media (max-width: 768px) {
+      .hero-title {
+        font-size: 2rem;
+      }
+
+      .hero-subtitle {
+        font-size: 1rem;
+      }
+
+      .form-card {
+        padding: 2rem;
+        margin-top: -50px;
+      }
     }
 
-    .destination-tab:hover {
-      background-color: rgba(67, 97, 238, 0.05);
-    }
-
-    .destination-tab.active {
-      border-color: #dee2e6;
-      border-bottom: 1px solid white;
-      background-color: white;
-      color: var(--primary);
-      position: relative;
-      bottom: -1px;
-    }
-
-    .tab-content {
-      padding: 1rem 0;
-    }
-
-    .tab-pane {
-      display: none;
-    }
-
-    .tab-pane.active {
-      display: block;
-      animation: fadeIn 0.3s ease;
-    }
-
-    @media (max-width: 576px) {
-  .header-title {
-    font-size: 1.8rem;
-  }
-
-  .travel-image {
-    height: 80px;
-  }
-
-  .travel-mode-option,
-  .trip-type-option {
-    padding: 1rem 0.5rem;
-    font-size: 0.9rem;
-  }
-
-  .form-control, .form-select {
-    font-size: 0.9rem;
-    padding: 0.6rem 1rem;
-  }
-
-  .btn-primary {
-    font-size: 0.95rem;
-    padding: 0.85rem;
-  }
-
-  .form-card {
-    padding: 1rem;
-    border-radius: 16px;
-  }
-
-  .destination-tab {
-    font-size: 0.9rem;
-    padding: 0.6rem 1rem;
-  }
+    .reviews {
+  background-color: #f9f9f9;
+  padding: 40px 20px;
+  border-top: 2px solid #eee;
+  margin-top: 60px;
 }
-  </style>
 
+.section-title {
+  font-size: 28px;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.review-card {
+  max-width: 600px;
+  margin: 0 auto 20px auto;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.review-text {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.review-author {
+  font-style: italic;
+  text-align: right;
+  font-size: 16px;
+}
+
+      @keyframes pop {
+      0% { transform: scale(0.95); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+  </style>
 </head>
 <body>
-  <div class="travel-container">
-    <div class="header-section">
-      <img src="https://cdn-icons-png.flaticon.com/512/201/201623.png" alt="Путешествие" class="travel-image">
-      <h1 class="header-title">Генератор чек-листов</h1>
-      <p class="header-subtitle">Создайте персонализированный список вещей для вашего путешествия</p>
+  <!-- Герой-секция -->
+  <section class="hero-section text-center">
+    <div class="container">
+      <div class="hero-icon animate__animated animate__fadeIn">
+        <i class="bi bi-check2-square"></i>
+      </div>
+      <h1 class="hero-title animate__animated animate__fadeInUp">Ничего не забудьте в путешествии</h1>
+      <p class="hero-subtitle animate__animated animate__fadeInUp animate__delay-1s">
+        Персональный чек-лист для вашей поездки за 30 секунд. Просто укажите параметры — получите готовый PDF с полным списком вещей.
+      </p>
+      <a href="#checklistForm" class="cta-button animate__animated animate__fadeInUp animate__delay-2s">
+        Создать мой чек-лист →
+      </a>
     </div>
-<section class="text-center py-5 px-3" style="background: #f0f4ff; border-radius: 20px; max-width: 960px; margin: 0 auto;">
-  <h1 style="font-size: 2.2rem; font-weight: 700; color: #3a0ca3;" class="mb-3">
-    🧳 Умный чек-лист для путешествий
-  </h1>
+  </section>
 
-  <p style="font-size: 1.1rem; max-width: 700px; margin: 0 auto 1.5rem; color: #444;">
-    Устали забывать важные вещи перед поездкой? Наш сервис поможет собрать всё —
-    от паспорта до игрушек. Просто выберите страну, сезон, тип поездки — и получите
-    <strong>персональный PDF-чек-лист</strong>!
-  </p>
+  <!-- Основной контент -->
+  <div class="container">
+    <!-- Форма -->
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="form-card animate__animated animate__fadeIn" id="checklistForm">
+          <h2 class="section-title mb-4">Создайте ваш чек-лист</h2>
+          <p class="mb-4">Заполните параметры поездки и получите персонализированный список вещей</p>
 
-  <ul class="text-start mx-auto mb-3" style="max-width: 600px; font-size: 1.05rem; line-height: 1.6;">
-    <li>✔️ Учитывает сезон и направление</li>
-    <li>✔️ Подходит для одиночных и семейных поездок</li>
-    <li>✔️ PDF создаётся автоматически</li>
-    <li>✔️ Работает для Турции, Европы, Азии и СНГ</li>
-  </ul>
-
-  <p style="font-size: 1.1rem; color: #333;">
-    ✍️ Заполните форму ниже и получите свой чек-лист за <strong>30 секунд</strong> 👇
-  </p>
-</section>
-
-    <div class="form-card">
-      <form id="checklistForm" method="post">
-        <!-- Выбор режима путешествия -->
-        <div class="mb-4">
-          <label class="form-label">Тип путешествия:</label>
-          <div class="travel-mode-selector">
-            <div class="travel-mode-option active" onclick="selectMode('Один')">
-              <i class="bi bi-person-fill"></i>
-              <div class="travel-mode-text">Один</div>
-              <input type="radio" name="mode" value="Один" checked hidden>
-            </div>
-            <div class="travel-mode-option" onclick="selectMode('Семья')">
-              <i class="bi bi-people-fill"></i>
-              <div class="travel-mode-text">Семья</div>
-              <input type="radio" name="mode" value="Семья" hidden>
-            </div>
-          </div>
-        </div>
-
-        <!-- Выбор направления -->
-        <div class="mb-4">
-          <label class="form-label">Куда вы направляетесь?</label>
-
-          <div class="destination-tabs">
-            <div class="destination-tab active" onclick="selectTab('country')">Страна</div>
-            <div class="destination-tab" onclick="selectTab('city')">Город</div>
-          </div>
-
-          <div class="tab-content">
-            <div id="country-tab" class="tab-pane active">
-              <div class="input-group">
-                <span class="input-group-text"><i class="bi bi-globe"></i></span>
-                <select class="form-select" name="country" onchange="updateCitiesList()" required>
-                  <option value="" selected disabled>Загрузка стран...</option>
-                </select>
+          <form method="post">
+            <!-- Выбор режима путешествия -->
+            <div class="mb-4">
+              <label class="form-label">Вы путешествуете:</label>
+              <div class="row g-3">
+                <div class="col-6">
+                  <div class="travel-mode-option active" onclick="selectMode('Один')">
+                    <i class="bi bi-person-fill fs-3 mb-2"></i>
+                    <div class="travel-mode-text">Один</div>
+                    <input type="radio" name="mode" value="Один" checked hidden>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="travel-mode-option" onclick="selectMode('Семья')">
+                    <i class="bi bi-people-fill fs-3 mb-2"></i>
+                    <div class="travel-mode-text">Семья</div>
+                    <input type="radio" name="mode" value="Семья" hidden>
+                  </div>
+                </div>
               </div>
             </div>
+            <label class="form-label">Страна</label>
+<select class="form-select" name="country" id="countrySelect" required>
+  <option value="" selected disabled>Выберите страну</option>
+</select>
 
-            <div id="city-tab" class="tab-pane">
-              <div class="input-group">
-                <span class="input-group-text"><i class="bi bi-geo-alt"></i></span>
-                <select class="form-select" name="city" onchange="updateDestinationInfo()" required disabled>
+            <!-- Выбор направления -->
+                 <div class="mb-3">
+                <label class="form-label">Город</label>
+                <select class="form-select" name="city" id="citySelect" onchange="updateDestinationInfo()" required disabled>
                   <option value="" selected disabled>Сначала выберите страну</option>
                 </select>
               </div>
-            </div>
-          </div>
-        </div>
 
-        <div id="destinationInfo" class="destination-info mt-3">
-          <div class="mb-2">
-          <strong>Средняя температура:</strong> <span id="tempInfo">-</span>
-          </div>
-            <div class="mb-2">
-           <strong>Сезонные особенности:</strong> <span id="seasonInfo">-</span>
-              </div>
-              <div id="tipsInfo"></div>
+              <div id="destinationInfo" class="destination-info">
+                <div class="mb-2">
+                  <strong>Средняя температура:</strong> <span id="tempInfo">-</span>
                 </div>
-
-        <div class="row g-3 mb-4">
-          <div class="col-md-6">
-            <label class="form-label">Сезон поездки</label>
-            <div class="input-group">
-              <span class="input-group-text"><i class="bi bi-sun-fill"></i></span>
-              <select name="season" class="form-select" required onchange="updateDestinationInfo()">
-                <option value="Лето">🌞 Лето</option>
-                <option value="Осень">🍂 Осень</option>
-                <option value="Зима">❄️ Зима</option>
-                <option value="Весна">🌷 Весна</option>
-              </select>
-            </div>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Продолжительность</label>
-            <div class="input-group">
-              <span class="input-group-text"><i class="bi bi-calendar-range"></i></span>
-              <input type="number" class="form-control" name="days" required min="1" placeholder="Дней: 7, 14, 30" />
-            </div>
-          </div>
-        </div>
-
-        <div class="mb-4">
-          <label class="form-label">Тип поездки</label>
-          <div class="trip-type-selector">
-            <div class="trip-type-option active" onclick="selectTripType('Пляж')">
-              <i class="bi bi-umbrella"></i> Пляж
-              <input type="radio" name="trip_type" value="Пляж" checked hidden>
-            </div>
-            <div class="trip-type-option" onclick="selectTripType('Город')">
-              <i class="bi bi-building"></i> Город
-              <input type="radio" name="trip_type" value="Город" hidden>
-            </div>
-            <div class="trip-type-option" onclick="selectTripType('Горы')">
-              <i class="bi bi-mountain"></i> Горы
-              <input type="radio" name="trip_type" value="Горы" hidden>
-            </div>
-            <div class="trip-type-option" onclick="selectTripType('Рабочая')">
-              <i class="bi bi-briefcase"></i> Рабочая
-              <input type="radio" name="trip_type" value="Рабочая" hidden>
-            </div>
-          </div>
-        </div>
-
-        <!-- Поля для одного человека -->
-        <div id="solo_fields" class="form-section">
-          <div class="row g-3">
-            <div class="col-md-6">
-              <label class="form-label">Ваш пол</label>
-              <div class="input-group">
-                <span class="input-group-text"><i class="bi bi-gender-ambiguous"></i></span>
-                <select name="gender" class="form-select">
-                  <option value="Мужчина">👨 Мужчина</option>
-                  <option value="Женщина">👩 Женщина</option>
+                <div class="mb-2">
+                  <strong>Сезонные особенности:</strong> <span id="seasonInfo">-</span>
+                </div>
+                <div id="tipsInfo"></div>
+              </div>
+                        <div class="row g-3 mb-4">
+              <div class="col-md-6">
+                <label class="form-label">Сезон поездки</label>
+                <select name="season" class="form-select" required>
+                  <option value="Лето">🌞 Лето</option>
+                  <option value="Осень">🍂 Осень</option>
+                  <option value="Зима">❄️ Зима</option>
+                  <option value="Весна">🌷 Весна</option>
                 </select>
               </div>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Ваш возраст</label>
-              <div class="input-group">
-                <span class="input-group-text"><i class="bi bi-person-vcard"></i></span>
-                <input type="number" class="form-control" name="age" min="0" placeholder="Например: 28" required />
+              <div class="col-md-6">
+                <label class="form-label">Продолжительность</label>
+                <input type="number" class="form-control" name="days" required min="1" placeholder="Дней: 7, 14, 30" />
               </div>
             </div>
-          </div>
-        </div>
 
-        <!-- Поля для семьи -->
-        <div id="family_fields" class="form-section" style="display: none;">
-          <div class="row g-3 mb-3">
-            <div class="col-md-6">
-              <label class="form-label">Количество взрослых</label>
-              <div class="input-group">
-                <span class="input-group-text"><i class="bi bi-person-arms-up"></i></span>
-                <input type="number" class="form-control" name="adults" min="1" value="2" required />
+            <div class="mb-4">
+              <label class="form-label">Тип поездки</label>
+              <div class="row g-2">
+                <div class="col-6 col-md-3">
+                  <div class="trip-type-option active" onclick="selectTripType('Пляж')">
+                    <i class="bi bi-umbrella"></i> Пляж
+                    <input type="radio" name="trip_type" value="Пляж" checked hidden>
+                  </div>
+                </div>
+                <div class="col-6 col-md-3">
+                  <div class="trip-type-option" onclick="selectTripType('Город')">
+                    <i class="bi bi-building"></i> Город
+                    <input type="radio" name="trip_type" value="Город" hidden>
+                  </div>
+                </div>
+                <div class="col-6 col-md-3">
+                  <div class="trip-type-option" onclick="selectTripType('Горы')">
+                    <i class="bi bi-mountain"></i> Горы
+                    <input type="radio" name="trip_type" value="Горы" hidden>
+                  </div>
+                </div>
+                <div class="col-6 col-md-3">
+                  <div class="trip-type-option" onclick="selectTripType('Рабочая')">
+                    <i class="bi bi-briefcase"></i> Рабочая
+                    <input type="radio" name="trip_type" value="Рабочая" hidden>
+                  </div>
+                </div>
               </div>
             </div>
-            <div class="col-md-6">
-              <label class="form-label">Есть ли дети?</label>
-              <div class="input-group">
-                <span class="input-group-text"><i class="bi bi-balloon-heart"></i></span>
-                <select name="has_children" class="form-select" onchange="toggleChildrenAges()" required >
-                  <option value="Нет">Нет</option>
-                  <option value="Да">Да</option>
-                </select>
-              </div>
-            </div>
-          </div>
-          <div id="childrenAgesField" class="mb-3" style="display: none;">
-            <label class="form-label">Возраст детей (через запятую)</label>
-            <div class="input-group">
-              <span class="input-group-text"><i class="bi bi-123"></i></span>
-              <input type="text" class="form-control" name="children_ages" placeholder="Например: 3, 7, 12" />
-            </div>
-          </div>
-        </div>
-<!-- Поле Email -->
-<div class="mb-3">
-  <label class="form-label">Email (необязательно)</label>
-  <div class="input-group">
-    <span class="input-group-text"><i class="bi bi-envelope-fill"></i></span>
-    <input type="email" class="form-control" name="email" placeholder="email@example.com">
-  </div>
-</div>
 
-<!-- Кнопка генерации -->
- <div class="d-grid">
-          <button type="submit" class="btn btn-primary btn-lg">
-            <i class="bi bi-file-earmark-pdf"></i> Сгенерировать чек-лист
-          </button>
+            <!-- Поля для одного человека -->
+            <div id="solo_fields">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">Ваш пол</label>
+                  <select name="gender" class="form-select">
+                    <option value="Мужчина">👨 Мужчина</option>
+                    <option value="Женщина">👩 Женщина</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Ваш возраст</label>
+                  <input type="number" class="form-control" name="age" min="0" placeholder="Например: 28" required />
+                </div>
+              </div>
+            </div>
+
+            <!-- Поля для семьи -->
+            <div id="family_fields" style="display: none;">
+              <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                  <label class="form-label">Количество взрослых</label>
+                  <input type="number" class="form-control" name="adults" min="1" value="2" required />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Есть ли дети?</label>
+                  <select name="has_children" class="form-select" onchange="toggleChildrenAges()" required>
+                    <option value="Нет">Нет</option>
+                    <option value="Да">Да</option>
+                  </select>
+                </div>
+              </div>
+              <div id="childrenAgesField" class="mb-3" style="display: none;">
+                <label class="form-label">Возраст детей (через запятую)</label>
+                <input type="text" class="form-control" name="children_ages" placeholder="Например: 3, 7, 12" />
+              </div>
+            </div>
+
+            <div class="d-grid mt-4">
+              <button type="submit" class="btn btn-primary btn-lg">
+                <i class="bi bi-file-earmark-pdf"></i> Сгенерировать чек-лист
+              </button>
+            </div>
+          </form>
         </div>
-        <div class="mt-4 text-center">
-  <p>Поделитесь с друзьями:</p>
-  <a href="https://t.me/share/url?url=https://checklistttavel.onrender.com" target="_blank" class="btn btn-outline-primary btn-sm me-2">
-    <i class="bi bi-telegram"></i> Telegram
-  </a>
-  <a href="https://wa.me/?text=https://checklistttavel.onrender.com" target="_blank" class="btn btn-outline-success btn-sm me-2">
-    <i class="bi bi-whatsapp"></i> WhatsApp
-  </a>
-  <a href="https://www.facebook.com/sharer/sharer.php?u=https://checklistttavel.onrender.com" target="_blank" class="btn btn-outline-primary btn-sm">
-    <i class="bi bi-facebook"></i> Facebook
-  </a>
-          <a href="https://boosty.to/твоя_ссылка" target="_blank" class="btn btn-outline-primary">
-  💖 Поддержать проект
-</a>
-</div>
-      </form>
+      </div>
     </div>
+
+    <!-- Преимущества -->
+    <div class="row my-5 py-4">
+      <div class="col-12 text-center mb-4">
+        <h2 class="section-title">Почему это удобно</h2>
+      </div>
+
+      <div class="col-md-4 mb-4">
+        <div class="benefit-card">
+          <div class="benefit-icon">
+            <i class="bi bi-lightning-charge"></i>
+          </div>
+          <h4>Быстро</h4>
+          <p>Заполните форму за 30 секунд — получите готовый чек-лист. Не нужно вспоминать, что взять.</p>
+        </div>
+      </div>
+
+      <div class="col-md-4 mb-4">
+        <div class="benefit-card">
+          <div class="benefit-icon">
+            <i class="bi bi-person-check"></i>
+          </div>
+          <h4>Персонально</h4>
+          <p>Список формируется под ваш маршрут, сезон и состав компании. Учитывается всё — от купальника до аптечки.</p>
+        </div>
+      </div>
+
+      <div class="col-md-4 mb-4">
+        <div class="benefit-card">
+          <div class="benefit-icon">
+            <i class="bi bi-file-earmark-pdf"></i>
+          </div>
+          <h4>Готовый PDF</h4>
+          <p>Скачайте или получите на email красивый PDF-чеклист. Можно распечатать или сохранить в телефон.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Как это работает -->
+    <div class="row my-5 py-4">
+      <div class="col-12 text-center mb-5">
+        <h2 class="section-title">Как это работает</h2>
+      </div>
+
+      <div class="col-md-4">
+        <div class="how-it-works-step">
+          <div class="step-number">1</div>
+          <h4>Выберите параметры</h4>
+          <p>Укажите страну, сезон, тип поездки и состав компании</p>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="how-it-works-step">
+          <div class="step-number">2</div>
+          <h4>Получите список</h4>
+          <p>Система сгенерирует персонализированный чек-лист с учетом всех деталей</p>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="how-it-works-step">
+          <div class="step-number">3</div>
+          <h4>Скачайте PDF</h4>
+          <p>Получите готовый файл, распечатайте или сохраните в телефон</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Отзывы -->
+    <section class="reviews">
+  <h2 class="section-title">Что говорят пользователи</h2>
+  <div class="review-card">
+    <p class="review-text">💬 Очень удобно! Собрала всё за 5 минут перед поездкой с ребёнком. Спасибо!</p>
+    <p class="review-author">— Анна, Москва</p>
   </div>
+  <div class="review-card">
+    <p class="review-text">💬 Не забыл ни одной вещи! Чек-лист реально помогает.</p>
+    <p class="review-author">— Игорь, Санкт-Петербург</p>
+  </div>
+      <div class="review-card">
+    <p class="review-text">💬 Отличный сервис! В последней поездке в Таиланд благодаря чек-листу не забыл адаптер для розеток и крем от солнца. Мелочи, но очень важные!</p>
+    <p class="review-author">— Михаил П, путешественник</p>
+  </div>
+</section>
+
+  </div>
+
+  <!-- Футер -->
+  <footer class="bg-light py-4 mt-5">
+    <div class="container text-center">
+      <p>© 2023 TravelCheck — генератор чек-листов для путешествий</p>
+      <div class="mt-3">
+        <a href="#" class="text-decoration-none me-3"><i class="bi bi-envelope"></i> Обратная связь</a>
+        <a href="#" class="text-decoration-none me-3"><i class="bi bi-shield-lock"></i> Политика конфиденциальности</a>
+        <a href="#" class="text-decoration-none"><i class="bi bi-info-circle"></i> О проекте</a>
+      </div>
+    </div>
+  </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    // Глобальные переменные для хранения данных
-    let destinationData = {};
-    let countryCities = {};
+  // Глобальные переменные для хранения данных
+  let destinationData = {};
+  let countryCities = {};
 
-    async function loadDestinationData() {
-        try {
-            const response = await fetch('/static/data/destinations.json');
-            if (!response.ok) throw new Error('Ошибка загрузки данных');
-            const data = await response.json();
+  // Загрузка данных о направлениях
+  async function loadDestinationData() {
+    try {
+      const response = await fetch('/static/data/destinations.json');
+      if (!response.ok) throw new Error('Ошибка загрузки данных');
+      const data = await response.json();
 
-            destinationData = data.destination_data || {};
-            countryCities = data.country_cities || {};
+      destinationData = data.destination_data || {};
+      countryCities = data.country_cities || {};
 
-            // Заполняем список стран
-            const countrySelect = document.querySelector('select[name="country"]');
-            if (countrySelect) {
-                countrySelect.innerHTML = '<option value="" selected disabled>Выберите страну</option>';
+      // Заполняем список стран
+      const countrySelect = document.querySelector('select[name="country"]');
+      if (countrySelect) {
+        countrySelect.innerHTML = '<option value="" selected disabled>Выберите страну</option>';
 
-                Object.keys(countryCities).sort().forEach(country => {
-                    const option = document.createElement('option');
-                    option.value = country;
-                    option.textContent = country;
-                    countrySelect.appendChild(option);
-                });
-            }
+        Object.keys(countryCities).sort().forEach(country => {
+          const option = document.createElement('option');
+          option.value = country;
+          option.textContent = country;
+          countrySelect.appendChild(option);
+        });
+      }
 
-            return data;
-        } catch (error) {
-            console.error('Ошибка загрузки данных:', error);
-            const countrySelect = document.querySelector('select[name="country"]');
-            if (countrySelect) {
-                countrySelect.innerHTML = '<option value="" selected disabled>Ошибка загрузки. Обновите страницу</option>';
-            }
-            return { destination_data: {}, country_cities: {} };
-        }
+      return data;
+    } catch (error) {
+      console.error('Ошибка загрузки данных:', error);
+      const countrySelect = document.querySelector('select[name="country"]');
+      if (countrySelect) {
+        countrySelect.innerHTML = '<option value="" selected disabled>Ошибка загрузки. Обновите страницу</option>';
+      }
+      return { destination_data: {}, country_cities: {} };
     }
+  }
 
-    async function generateChecklist() {
+  // Обработка отправки формы
+async function generateChecklist() {
         const form = document.getElementById('checklistForm');
         if (!form) return;
 
@@ -563,158 +625,146 @@
         return true;
     }
 
-    function updateCitiesList() {
-        const countrySelect = document.querySelector('select[name="country"]');
-        const citySelect = document.querySelector('select[name="city"]');
-        if (!countrySelect || !citySelect) return;
+  // Обновление списка городов при выборе страны
+  function updateCitiesList() {
+    const countrySelect = document.querySelector('select[name="country"]');
+    const citySelect = document.getElementById('citySelect');
 
-        const country = countrySelect.value;
-        citySelect.innerHTML = '<option value="" selected disabled>Выберите город</option>';
+    if (!countrySelect || !citySelect) return;
 
-        if (country && countryCities[country]) {
-            citySelect.disabled = false;
-            countryCities[country].forEach(city => {
-                const option = document.createElement('option');
-                option.value = city;
-                option.textContent = city;
-                citySelect.appendChild(option);
-            });
-        } else {
-            citySelect.disabled = true;
-        }
+    const country = countrySelect.value;
+    citySelect.innerHTML = '<option value="" selected disabled>Выберите город</option>';
+
+    if (country && countryCities[country]) {
+      citySelect.disabled = false;
+      countryCities[country].forEach(city => {
+        const option = document.createElement('option');
+        option.value = city;
+        option.textContent = city;
+        citySelect.appendChild(option);
+      });
+    } else {
+      citySelect.disabled = true;
     }
-
-    function updateDestinationInfo() {
-        const country = document.querySelector('select[name="country"]')?.value;
-        const city = document.querySelector('select[name="city"]')?.value;
-        const season = document.querySelector('select[name="season"]')?.value;
-        const infoDiv = document.getElementById('destinationInfo');
-
-        if (!infoDiv || !country || !city || !season) {
-            if (infoDiv) infoDiv.style.display = 'none';
-            return;
-        }
-
-        // Проверяем оба возможных формата данных
-        let cityData = (destinationData[country] && destinationData[country][city]) || destinationData[city];
-
-        if (cityData && cityData[season]) {
-            const info = cityData[season];
-            document.getElementById('tempInfo').textContent = info.temp || '-';
-            document.getElementById('seasonInfo').textContent = info.description || '-';
-
-            const tipsList = info.tips?.map(tip => `<li>${tip}</li>`).join('') || '';
-            document.getElementById('tipsInfo').innerHTML = tipsList
-                ? `<strong>Рекомендуем взять:</strong><ul class="mt-1 mb-0">${tipsList}</ul>`
-                : '';
-
-            infoDiv.style.display = 'block';
-        } else {
-            infoDiv.style.display = 'none';
-        }
-    }
-
-    function selectTab(tabName) {
-        document.querySelectorAll('.destination-tab').forEach(tab => {
-            tab.classList.remove('active');
-        });
-        document.querySelectorAll('.tab-pane').forEach(pane => {
-            pane.classList.remove('active');
-        });
-
-        event.currentTarget.classList.add('active');
-        const tabElement = document.getElementById(`${tabName}-tab`);
-        if (tabElement) tabElement.classList.add('active');
-    }
-
-    function selectMode(mode) {
-        document.querySelectorAll('.travel-mode-option').forEach(opt => {
-            opt.classList.remove('active');
-        });
-        event.currentTarget.classList.add('active');
-
-        const radioInput = document.querySelector(`input[value="${mode}"]`);
-        if (radioInput) radioInput.checked = true;
-
-        toggleForm();
-    }
-
-    function selectTripType(type) {
-        document.querySelectorAll('.trip-type-option').forEach(opt => {
-            opt.classList.remove('active');
-        });
-        event.currentTarget.classList.add('active');
-
-        const radioInput = document.querySelector(`input[value="${type}"]`);
-        if (radioInput) radioInput.checked = true;
-    }
-
-    function toggleForm() {
-  const modeInput = document.querySelector('input[name="mode"]:checked');
-  if (!modeInput) return;
-
-  const mode = modeInput.value;
-  const soloFields = document.getElementById("solo_fields");
-  const familyFields = document.getElementById("family_fields");
-  const ageInput = document.querySelector('input[name="age"]');
-
-  if (mode === "Один") {
-    soloFields.style.display = "block";
-    familyFields.style.display = "none";
-    if (ageInput) ageInput.setAttribute("required", "required");
-  } else if (mode === "Семья") {
-    soloFields.style.display = "none";
-    familyFields.style.display = "block";
-    if (ageInput) ageInput.removeAttribute("required");
   }
-}
 
-    function toggleChildrenAges() {
-        const hasChildrenSelect = document.querySelector('select[name="has_children"]');
-        if (!hasChildrenSelect) return;
+  // Обновление информации о направлении
+  function updateDestinationInfo() {
+    const country = document.querySelector('select[name="country"]')?.value;
+    const city = document.querySelector('select[name="city"]')?.value;
+    const season = document.querySelector('select[name="season"]')?.value;
+    const infoDiv = document.getElementById('destinationInfo');
 
-        const hasChildren = hasChildrenSelect.value === "Да";
-        const childrenAgesField = document.getElementById("childrenAgesField");
-        if (childrenAgesField) childrenAgesField.style.display = hasChildren ? "block" : "none";
+    if (!infoDiv || !country || !city || !season) {
+      if (infoDiv) infoDiv.style.display = 'none';
+      return;
     }
 
-    // Инициализация при загрузке
-    window.addEventListener('DOMContentLoaded', async () => {
+    // Проверяем данные о направлении
+    let cityData = (destinationData[country] && destinationData[country][city]) || destinationData[city];
 
-        await loadDestinationData();
+    if (cityData && cityData[season]) {
+      const info = cityData[season];
+      document.getElementById('tempInfo').textContent = info.temp || '-';
+      document.getElementById('seasonInfo').textContent = info.description || '-';
 
-        // Настройка обработчиков событий
-        document.querySelector('select[name="country"]')?.addEventListener('change', updateCitiesList);
-        document.querySelector('select[name="city"]')?.addEventListener('change', updateDestinationInfo);
-        document.querySelector('select[name="season"]')?.addEventListener('change', updateDestinationInfo);
+      const tipsList = info.tips?.map(tip => `<li>${tip}</li>`).join('') || '';
+      document.getElementById('tipsInfo').innerHTML = tipsList
+        ? `<strong>Рекомендации в дорогу согласно сезону:</strong><ul class="mt-1 mb-0">${tipsList}</ul>`
+        : '';
 
-        // Инициализация других функций
-        toggleForm();
-        toggleChildrenAges();
+      infoDiv.style.display = 'block';
+    } else {
+      infoDiv.style.display = 'none';
+    }
+  }
 
-        // Обработчик формы
-        const form = document.getElementById('checklistForm');
-        if (form) {
-            form.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                const canSubmit = await generateChecklist();
-                if (canSubmit) {
-                    this.submit();
-                }
-            });
-        }
-
+  // Выбор режима путешествия (один/семья)
+  function selectMode(mode) {
+    document.querySelectorAll('.travel-mode-option').forEach(opt => {
+      opt.classList.remove('active');
     });
-    window.addEventListener('pageshow', function(event) {
-    // Сработает при возврате на страницу (включая кнопку "Назад")
-    if (event.persisted) {
-        const submitBtn = document.querySelector('#checklistForm button[type="submit"]');
-        if (submitBtn) {
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = '<i class="bi bi-file-earmark-pdf"></i> Сгенерировать чек-лист';
-        }
+    event.currentTarget.classList.add('active');
+
+    const radioInput = document.querySelector(`input[value="${mode}"]`);
+    if (radioInput) radioInput.checked = true;
+
+    toggleForm();
+  }
+
+  // Выбор типа поездки
+  function selectTripType(type) {
+    document.querySelectorAll('.trip-type-option').forEach(opt => {
+      opt.classList.remove('active');
+    });
+    event.currentTarget.classList.add('active');
+
+    const radioInput = document.querySelector(`input[value="${type}"]`);
+    if (radioInput) radioInput.checked = true;
+  }
+
+  // Переключение между полями для одного/семьи
+  function toggleForm() {
+    const modeInput = document.querySelector('input[name="mode"]:checked');
+    if (!modeInput) return;
+
+    const mode = modeInput.value;
+    const soloFields = document.getElementById("solo_fields");
+    const familyFields = document.getElementById("family_fields");
+    const ageInput = document.querySelector('input[name="age"]');
+
+    if (mode === "Один") {
+      soloFields.style.display = "block";
+      familyFields.style.display = "none";
+      if (ageInput) ageInput.setAttribute("required", "required");
+    } else if (mode === "Семья") {
+      soloFields.style.display = "none";
+      familyFields.style.display = "block";
+      if (ageInput) ageInput.removeAttribute("required");
     }
-});
-  </script>
+  }
+
+  // Показать/скрыть поле возраста детей
+  function toggleChildrenAges() {
+    const hasChildrenSelect = document.querySelector('select[name="has_children"]');
+    if (!hasChildrenSelect) return;
+
+    const hasChildren = hasChildrenSelect.value === "Да";
+    const childrenAgesField = document.getElementById("childrenAgesField");
+    if (childrenAgesField) childrenAgesField.style.display = hasChildren ? "block" : "none";
+  }
+
+  // Инициализация при загрузке страницы
+  document.addEventListener('DOMContentLoaded', async () => {
+    // Загрузка данных
+    await loadDestinationData();
+
+    // Настройка обработчиков событий
+    document.querySelector('select[name="country"]')?.addEventListener('change', updateCitiesList);
+    document.querySelector('select[name="city"]')?.addEventListener('change', updateDestinationInfo);
+    document.querySelector('select[name="season"]')?.addEventListener('change', updateDestinationInfo);
+
+    // Обработчик формы
+    const form = document.getElementById('checklistForm');
+    if (form) {
+      form.addEventListener('submit', generateChecklist);
+    }
+
+    // Инициализация состояния формы
+    toggleForm();
+    toggleChildrenAges();
+  });
+
+  // Восстановление состояния кнопки при возврате на страницу
+  window.addEventListener('pageshow', function(event) {
+    if (event.persisted) {
+      const submitBtn = document.querySelector('#checklistForm button[type="submit"]');
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="bi bi-file-earmark-pdf"></i> Сгенерировать чек-лист';
+      }
+    }
+  });
+</script>
 </body>
 </html>
