@@ -112,7 +112,7 @@
       box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
       padding: 3rem;
       border: none;
-      margin-top: -100px;
+      margin-top: 0;
       position: relative;
       z-index: 10;
     }
@@ -279,6 +279,46 @@
       50% { transform: scale(1.05); }
       100% { transform: scale(1); }
     }
+.social-share {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.share-btn {
+  width: 50px;
+  height: 50px;
+  background-color: #f2f2f2;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: white;
+  font-size: 24px;
+  transition: transform 0.2s, background-color 0.2s;
+}
+
+.share-btn:hover {
+  transform: scale(1.1);
+}
+.form-card .section-title {
+  margin-bottom: 0.5rem !important; /* ~8px */
+}
+
+.form-card h3 {
+  margin-top: 0.5rem;
+  margin-bottom: 1.5rem;
+  font-weight: 400;
+  color: #6c757d;
+}
+/* Индивидуальные цвета */
+.telegram { background-color: #0088cc; }
+.whatsapp { background-color: #25D366; }
+.instagram { background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fd5949 50%, #d6249f 100%); }
+.vk { background-color: #4c75a3; }
+
   </style>
 <!-- Yandex.Metrika counter -->
 <script type="text/javascript" >
@@ -314,23 +354,22 @@
 
 
       <a href="#checklistForm" class="cta-button animate__animated animate__fadeInUp animate__delay-2s">
-        Создать мой чек-лист →
+        Создать мой список →
       </a>
     </div>
   </section>
 
   <!-- Основной контент -->
-  <div class="container">
-    <!-- Форма -->
-    <div class="row justify-content-center">
-      <div class="col-lg-8">
-        <div class="form-card animate__animated animate__fadeIn" id="checklistForm">
-          <h2 class="section-title mb-4">Создайте ваш чек-лист</h2>
-
-          <h3> Выберите страну, сезон и тип поездки</h3>
-
-          <p class="mb-4">Заполните параметры поездки и получите персонализированный список вещей</p>
-
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="form-card animate__animated animate__fadeIn" id="checklistForm">
+        <div class="text-center mb-4"> <!-- Упростили структуру -->
+          <h1 class="display-6 fw-bold mb-2">Создайте свой список вещей в дорогу</h1>
+          <h2 class="h5 text-muted mb-3">Выберите страну, сезон и тип поездки</h2>
+          <div class="border-bottom mx-auto" style="width: 100px; height: 3px; background: var(--primary);"></div>
+        </div>
+        <p class="lead text-center mb-4">Заполните параметры поездки и получите персонализированный список вещей</p>
           <form method="post">
             <!-- Выбор режима путешествия -->
             <div class="mb-4">
@@ -537,8 +576,10 @@
     </div>
 
     <!-- Отзывы -->
-    <section class="reviews">
+    <section class="row my-5 py-4">
+      <div class="col-12 text-center mb-5">
   <h2 class="section-title">Что говорят пользователи</h2>
+       </div>
   <div class="review-card">
     <p class="review-text">💬 Очень удобно! Собрала всё за 5 минут перед поездкой с ребёнком. Спасибо!</p>
     <p class="review-author">— Анна, Москва</p>
@@ -551,6 +592,27 @@
     <p class="review-text">💬 Отличный сервис! В последней поездке в Таиланд благодаря чек-листу не забыл адаптер для розеток и крем от солнца. Мелочи, но очень важные!</p>
     <p class="review-author">— Михаил П, путешественник</p>
   </div>
+         </section>
+      <section class="row my-5 py-4">
+      <div class="col-12 text-center mb-5">
+  <h2 class="section-title">Поделись с друзьями</h2>
+       </div>
+<div class="social-share">
+  <a href="https://t.me/share/url?url=https://checklistttavel.onrender.com" target="_blank" class="share-btn telegram" title="Поделиться в Telegram">
+    <i class="fab fa-telegram-plane"></i>
+  </a>
+  <a href="https://wa.me/?text=https://checklistttavel.onrender.com" target="_blank" class="share-btn whatsapp" title="Поделиться в WhatsApp">
+    <i class="fab fa-whatsapp"></i>
+  </a>
+  <a href="https://www.instagram.com/" target="_blank" class="share-btn instagram" title="Открыть Instagram">
+    <i class="fab fa-instagram"></i>
+  </a>
+  <a href="https://vk.com/share.php?url=https://checklistttavel.onrender.com" target="_blank" class="share-btn vk" title="Поделиться в VK">
+    <i class="fab fa-vk"></i>
+  </a>
+</div>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </section>
 
   </div>
