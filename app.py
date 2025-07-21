@@ -4,6 +4,7 @@ from io import BytesIO
 import os
 import time
 from flask_cors import CORS
+from flask import send_from_directory
 
 app = Flask(__name__)
 CORS(app)
@@ -126,6 +127,11 @@ def print_pdf(filename):
         download_name=filename,
         as_attachment=False  # Важно для открытия в браузере
     )
+
+
+@app.route('/yandex_4b1e491e902157f6.html')
+def yandex_verification():
+    return send_from_directory('.', 'yandex_4b1e491e902157f6.html')
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000, debug=True)
