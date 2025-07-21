@@ -132,6 +132,9 @@ def print_pdf(filename):
 @app.route('/yandex_4b1e491e902157f6.html')
 def yandex_verification():
     return send_from_directory('.', 'yandex_4b1e491e902157f6.html')
+@app.route('/sitemap.xml')
+def sitemap():
+    return send_from_directory('static', 'sitemap.xml')
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000, debug=True)
