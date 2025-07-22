@@ -35,9 +35,17 @@
     <div class="preview-container">
         <h2 class="text-center mb-4">Ваш чек-лист готов!</h2>
 
-        <div class="pdf-viewer">
-            <iframe src="{{ url_for('serve_pdf', filename=filename) }}" width="100%" height="100%"></iframe>
-        </div>
+        <div id="pdfPreviewDesktop" class="pdf-viewer d-none d-md-block">
+    <iframe src="{{ url_for('serve_pdf', filename=filename) }}" width="100%" height="100%"></iframe>
+</div>
+
+<div id="pdfPreviewMobile" class="text-center d-block d-md-none mb-3">
+    <a href="{{ url_for('serve_pdf', filename=filename) }}" class="btn btn-primary btn-lg" target="_blank">
+        📄 Открыть PDF
+    </a>
+    <p class="mt-2 text-muted">Предпросмотр PDF недоступен на вашем устройстве — нажмите для открытия.</p>
+</div>
+
 
         <div class="action-buttons">
   <a href="{{ url_for('download_pdf', filename=filename) }}" class="btn btn-primary btn-lg">
