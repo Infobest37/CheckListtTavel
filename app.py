@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, send_from_directory, send_file, redirect, url_for
-from generate_checklist import generate_pdf
+from generate_checklist import generate_pdf,generate_checklist_items
 from io import BytesIO
+from data_city import DESTINATION_DATA
 import os
 import time
 from flask_cors import CORS
@@ -36,7 +37,7 @@ def index():
         clear_old_pdfs(app.config['UPLOAD_FOLDER'])
 
         try:
-
+            # Обработка данных для режима "Семья"
             if request.form['mode'] == "Семья":
                 adults = request.form.get('adults', '1')
                 if not adults.isdigit() or int(adults) < 1:
@@ -46,8 +47,21 @@ def index():
                 if request.form.get('has_children') == "Да":
                     if not request.form.get('children_ages'):
                         return "Укажите возраст детей", 400
-                    children_ages = [int(a.strip()) for a in request.form['children_ages'].split(',') if
-                                     a.strip().isdigit()]
+                    children_ages = [int(a.strip()) for a in request.form['children_ages'].split(',') if a.strip().isdigit()]
+
+            # Обработка данных для режима "Один"
+            solo_info = None
+            if request.form['mode'] == "Один":
+                age = request.form.get('age')
+                if age:  # Проверяем, что возраст указан
+                    try:
+                        age = int(age)  # Преобразуем в число
+                    except ValueError:
+                        return "Укажите корректный возраст", 400
+                solo_info = {
+                    "gender": request.form.get("gender"),
+                    "age": age  # Теперь это либо число, либо None
+                }
 
             # Генерация PDF
             pdf_data = generate_pdf(
@@ -56,17 +70,14 @@ def index():
                 days=int(request.form['days']),
                 trip_type=request.form['trip_type'],
                 mode=request.form['mode'],
-                solo_info={
-                    "gender": request.form.get("gender"),
-                    "age": int(request.form.get("age", 0)) if request.form.get("age") else None
-                } if request.form['mode'] == "Один" else None,
+                solo_info=solo_info,
                 family_info={
-                    "adults": int(request.form.get("adults", 1)),
+                    "adults": int(request.form.get('adults', 1)),
                     "children": children_ages if request.form.get('has_children') == "Да" else []
                 } if request.form['mode'] == "Семья" else None
             )
 
-            # Сохраняем временный файл для предпросмотра
+            # Сохраняем временный файл
             filename = f"checklist_{int(time.time())}.pdf"
             temp_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
 
@@ -74,22 +85,83 @@ def index():
                 f.write(pdf_data)
 
             # Перенаправляем на страницу предпросмотра
-            return redirect(url_for('preview_pdf', filename=filename))
-
+            return redirect(url_for('preview_pdf',
+                                 filename=filename,
+                                 destination=request.form.get('city') or request.form.get('country'),
+                                 season=request.form['season'],
+                                 days=request.form['days'],
+                                 trip_type=request.form['trip_type'],
+                                 mode=request.form['mode'],
+                                 gender=request.form.get('gender'),
+                                 age=request.form.get('age'),  # Передаем как строку, преобразуем в preview_pdf
+                                 adults=request.form.get('adults'),
+                                 has_children=request.form.get('has_children'),
+                                 children_ages=request.form.get('children_ages')))
 
         except Exception as e:
             app.logger.error(f"Error generating PDF: {str(e)}")
             return f"Ошибка сервера: {str(e)}", 500
-
 
     return render_template("index.html")
 
 
 @app.route('/preview/<filename>')
 def preview_pdf(filename):
-    return render_template('preview.html', filename=filename)
+    # Получаем параметры из URL
+    destination = request.args.get('destination')
+    season = request.args.get('season')
+    days = request.args.get('days')
+    trip_type = request.args.get('trip_type')
+    mode = request.args.get('mode')
 
+    # Обработка параметров для одиночного путешественника
+    solo_info = None
+    if mode == 'Один':
+        age = request.args.get('age')
+        if age:  # Проверяем, что возраст указан
+            try:
+                age = int(age)  # Преобразуем в число
+            except ValueError:
+                age = None
+        solo_info = {
+            "gender": request.args.get('gender'),
+            "age": age  # Теперь это либо число, либо None
+        }
 
+    # Обработка параметров для семейного путешествия
+    family_info = None
+    if mode == 'Семья':
+        children_ages = []
+        if request.args.get('has_children') == 'Да':
+            children_ages_str = request.args.get('children_ages', '')
+            children_ages = [int(a.strip()) for a in children_ages_str.split(',') if a.strip().isdigit()]
+
+        family_info = {
+            "adults": int(request.args.get('adults', 1)),
+            "children": children_ages
+        }
+
+    # Генерация данных чек-листа
+    categories, dest_info = generate_checklist_items(
+        destination=destination,
+        season=season,
+        days=int(days) if days else 7,
+        trip_type=trip_type,
+        mode=mode,
+        solo_info=solo_info,
+        family_info=family_info
+    )
+
+    # Формируем данные для шаблона
+    checklist_data = {
+        "destination": destination,
+        "season": f"{season} ({dest_info['temp']})",
+        "description": dest_info["description"],
+        "categories": categories,
+        "tips": dest_info.get("tips", [])
+    }
+
+    return render_template('preview.html', checklist_data=checklist_data, pdf_filename=filename)
 @app.route('/pdf/<filename>')
 def serve_pdf(filename):
     # Отдаем PDF для просмотра в iframe

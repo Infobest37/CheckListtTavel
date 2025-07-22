@@ -3,95 +3,201 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Предпросмотр чек-листа</title>
+    <title>Ваш чек-лист для путешествия</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <style>
         body {
-            padding: 2rem;
+            padding: 1rem;
             background-color: #f8f9fa;
         }
-        .preview-container {
+        .checklist-container {
             max-width: 800px;
             margin: 0 auto;
             background: white;
             padding: 2rem;
             border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
         }
-        .pdf-viewer {
-            width: 100%;
-            height: 600px;
-            border: 1px solid #ddd;
-            margin-bottom: 1.5rem;
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #eee;
+        }
+        .category {
+            margin-bottom: 2rem;
+        }
+        .category-title {
+            font-weight: 600;
+            color: #0d6efd;
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+        }
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .checklist-item input {
+            margin-right: 0.75rem;
         }
         .action-buttons {
             display: flex;
-            gap: 1rem;
+            flex-wrap: wrap;
+            gap: 0.75rem;
             justify-content: center;
+            margin-top: 2rem;
         }
+        @media print {
+            .action-buttons {
+                display: none;
+            }
+            body {
+                background-color: white;
+                padding: 0;
+            }
+            .checklist-container {
+                box-shadow: none;
+                padding: 0;
+            }
+        }
+        @media (max-width: 576px) {
+            body {
+                padding: 0.5rem;
+            }
+            .checklist-container {
+                padding: 1.5rem;
+            }
+            .action-buttons .btn {
+                flex: 1 1 100%;
+            }
+        }
+        .recommendations .card {
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+.recommendations .list-group-item {
+    border-left: none;
+    border-right: none;
+    padding: 0.75rem 1.25rem;
+}
+.recommendations .bi-check-circle {
+    margin-right: 0.5rem;
+}
     </style>
 </head>
 <body>
-    <div class="preview-container">
-        <h2 class="text-center mb-4">Ваш чек-лист готов!</h2>
-
-        <div id="pdfPreviewDesktop" class="pdf-viewer d-none d-md-block">
-    <iframe src="{{ url_for('serve_pdf', filename=filename) }}" width="100%" height="100%"></iframe>
+    <div class="checklist-container">
+        <div class="header">
+    <h2>Ваш чек-лист готов!</h2>
+    <p class="text-muted">Для поездки в {{ checklist_data.destination }} ({{ checklist_data.season }})</p>
 </div>
 
-<div id="pdfPreviewMobile" class="text-center d-block d-md-none mb-3">
-    <a href="{{ url_for('serve_pdf', filename=filename) }}" class="btn btn-primary btn-lg" target="_blank">
-        📄 Открыть PDF
-    </a>
-    <p class="mt-2 text-muted">Предпросмотр PDF недоступен на вашем устройстве — нажмите для открытия.</p>
+<!-- Новый блок с рекомендациями -->
+<div class="recommendations mb-4">
+    <div class="card border-primary">
+        <div class="card-header bg-primary text-white">
+            <i class="bi bi-lightbulb"></i> Рекомендации для {{ checklist_data.destination }}
+        </div>
+        <div class="card-body">
+            <p class="card-text">{{ checklist_data.description }}</p>
+            {% if checklist_data.tips %}
+            <h5 class="card-title mt-3">Что взять с собой:</h5>
+            <ul class="list-group list-group-flush">
+                {% for tip in checklist_data.tips %}
+                <li class="list-group-item d-flex align-items-center">
+                    <i class="bi bi-check-circle-fill text-primary me-2"></i>
+                    <span>{{ tip }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        </div>
+    </div>
 </div>
 
+<!-- Существующий блок с категориями -->
+{% for category, items in checklist_data.categories.items() %}
+        <div class="category">
+            <div class="category-title">{{ category }}</div>
+            <div class="category-items">
+                {% for item in items %}
+                <div class="checklist-item">
+                    <input type="checkbox" class="form-check-input" id="item-{{ loop.index }}">
+                    <label for="item-{{ loop.index }}" class="form-check-label">{{ item }}</label>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
 
         <div class="action-buttons">
-  <a href="{{ url_for('download_pdf', filename=filename) }}" class="btn btn-primary btn-lg">
-    <i class="bi bi-download"></i> Скачать PDF
-  </a>
-
-  <a href="{{ url_for('print_pdf', filename=filename) }}" class="btn btn-outline-primary btn-lg" target="_blank">
-    <i class="bi bi-printer"></i> Печать
-  </a>
-
-  <div class="dropdown text-center">
-    <button class="btn btn-outline-primary btn-lg dropdown-toggle" type="button" id="sendDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-      <i class="bi bi-share"></i> Отправить
-    </button>
-    <ul class="dropdown-menu" aria-labelledby="sendDropdown">
-      <li>
-        <a class="dropdown-item" target="_blank"
-           href="https://wa.me/?text=Вот мой чек-лист: {{ url_for('serve_pdf', filename=filename, _external=True) }}">
-          <i class="bi bi-whatsapp text-success"></i> WhatsApp
-        </a>
-      </li>
-      <li>
-        <a class="dropdown-item" target="_blank"
-           href="https://t.me/share/url?url={{ url_for('serve_pdf', filename=filename, _external=True) }}&text=Вот мой чек-лист">
-          <i class="bi bi-telegram text-info"></i> Telegram
-        </a>
-      </li>
-      <li>
-        <a class="dropdown-item"
-           href="mailto:?subject=Чек-лист для путешествия&body=Вот мой чек-лист: {{ url_for('serve_pdf', filename=filename, _external=True) }}">
-          <i class="bi bi-envelope text-warning"></i> Email
-        </a>
-      </li>
-      <li>
-  <a class="dropdown-item" href="#"
-     onclick="navigator.clipboard.writeText(`{{ url_for('serve_pdf', filename=filename, _external=True) }}`).then(() => alert('Ссылка скопирована!'));">
-    <i class="bi bi-link-45deg"></i> Скопировать ссылку
-  </a>
-</li>
-    </ul>
-  </div>
-</div>
-
+            <a href="/download/{{ pdf_filename }}" class="btn btn-primary">
+                <i class="bi bi-download"></i> Скачать PDF
+            </a>
+            <button onclick="window.print()" class="btn btn-primary">
+                <i class="bi bi-printer"></i> Печать
+            </button>
+            <button onclick="shareChecklist()" class="btn btn-outline-primary">
+                <i class="bi bi-share"></i> Поделиться
+            </button>
+            <a href="/" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Новый список
+            </a>
+        </div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Сохраняем состояние чекбоксов
+        document.addEventListener('DOMContentLoaded', function() {
+            const checkboxes = document.querySelectorAll('.form-check-input');
 
-</div>
+            // Генерируем уникальный ключ для этого чек-листа
+            const checklistKey = `checklist_${window.location.pathname.split('/').pop()}`;
+
+            checkboxes.forEach((checkbox, index) => {
+                const itemKey = `${checklistKey}_item_${index}`;
+                const savedState = localStorage.getItem(itemKey);
+                if (savedState === 'checked') {
+                    checkbox.checked = true;
+                }
+
+                checkbox.addEventListener('change', function() {
+                    localStorage.setItem(itemKey, this.checked ? 'checked' : 'unchecked');
+                });
+            });
+        });
+
+        // Функция для поделиться
+        function shareChecklist() {
+            const checklistText = `Мой чек-лист для поездки в ${"{{ checklist_data.destination }}"} (${"{{ checklist_data.season }}"})\n\n` +
+                `{% for category, items in checklist_data.categories.items() %}${category}:\n` +
+                `{% for item in items %}• ${item}\n{% endfor %}\n{% endfor %}`;
+
+            if (navigator.share) {
+                navigator.share({
+                    title: `Мой чек-лист для путешествия в ${"{{ checklist_data.destination }}"}`,
+                    text: checklistText,
+                    url: window.location.href
+                }).catch(err => console.log('Ошибка sharing:', err));
+            } else if (navigator.clipboard) {
+                navigator.clipboard.writeText(checklistText)
+                    .then(() => alert('Чек-лист скопирован в буфер обмена!'))
+                    .catch(err => console.error('Ошибка копирования:', err));
+            } else {
+                // Fallback для старых браузеров
+                const textarea = document.createElement('textarea');
+                textarea.value = checklistText;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert('Чек-лист скопирован в буфер обмена!');
+            }
+        }
+    </script>
 </body>
 </html>
