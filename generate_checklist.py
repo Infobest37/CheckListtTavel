@@ -1,7 +1,6 @@
 #generate_checklist.py
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
-from reportlab.lib.units import cm, mm
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.lib import colors
@@ -91,6 +90,7 @@ def generate_checklist_items(destination, season, days, trip_type, mode, solo_in
 def generate_pdf(destination, season, days, trip_type, mode, solo_info=None, family_info=None):
     # Получаем данные для чек-листа
     categories, dest_info = generate_checklist_items(destination, season, days, trip_type, mode, solo_info, family_info)
+    recommendations = dest_info.get("recommendations", {})
 
     # Создаем PDF в памяти
     buffer = io.BytesIO()
@@ -133,9 +133,18 @@ def generate_pdf(destination, season, days, trip_type, mode, solo_info=None, fam
     desc.wrapOn(c, width - 40, height)
     desc.drawOn(c, 20, height - 110)
 
-    # Начинаем рисовать категории
+    # Начальная позиция для контента
     y_position = height - 150
 
+    # 1. Объединяем "Что взять с собой" из рекомендаций и сгенерированного списка
+    if recommendations and 'things_to_take' in recommendations:
+        # Добавляем рекомендации "Что взять" в основной список
+        if "Одежда" in categories:
+            categories["Одежда"].extend(recommendations['things_to_take'])
+        else:
+            categories["Одежда"] = recommendations['things_to_take']
+
+    # 2. Рисуем основной чек-лист
     for category, items in categories.items():
         # Рисуем название категории
         c.setFont("DejaVuSans-Bold", 14)
@@ -155,6 +164,48 @@ def generate_pdf(destination, season, days, trip_type, mode, solo_info=None, fam
                 c.showPage()
                 y_position = height - 50
                 c.setFont("DejaVuSans", 12)
+
+    # 3. Добавляем остальные рекомендации (чем заняться, советы, события)
+    if recommendations:
+        # Отступ перед рекомендациями
+        y_position -= 30
+
+        # Стиль для заголовков рекомендаций
+        c.setFont("DejaVuSans-Bold", 14)
+        c.setFillColor(colors.HexColor('#4361ee'))
+        c.drawString(30, y_position, "Дополнительные рекомендации:")
+        y_position -= 30
+
+        # Исключаем уже использованные рекомендации "Что взять"
+        rec_categories = {k: v for k, v in recommendations.items() if k != 'things_to_take'}
+
+        category_names = {
+            'things_to_do': '🏄 Чем заняться',
+            'local_tips': '💡 Советы от местных',
+            'events': '🎉 События и праздники'
+        }
+
+        for cat_key, items in rec_categories.items():
+            if not items:
+                continue
+
+            # Название категории рекомендаций
+            cat_name = category_names.get(cat_key, cat_key)
+            c.setFont("DejaVuSans-Bold", 12)
+            c.setFillColor(colors.HexColor('#3a0ca3'))
+            c.drawString(30, y_position, cat_name)
+            y_position -= 20
+
+            # Элементы рекомендаций
+            c.setFont("DejaVuSans", 11)
+            c.setFillColor(colors.black)
+            for item in items:
+                c.drawString(40, y_position, f"• {item}")
+                y_position -= 16
+
+                if y_position < 50:
+                    c.showPage()
+                    y_position = height - 50
 
     # Добавляем подпись в конце
     c.showPage()

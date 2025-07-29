@@ -106,17 +106,58 @@
         </div>
         <div class="card-body">
             <p class="card-text">{{ checklist_data.description }}</p>
-            {% if checklist_data.tips %}
-            <h5 class="card-title mt-3">Что взять с собой:</h5>
-            <ul class="list-group list-group-flush">
-                {% for tip in checklist_data.tips %}
-                <li class="list-group-item d-flex align-items-center">
-                    <i class="bi bi-check-circle-fill text-primary me-2"></i>
-                    <span>{{ tip }}</span>
-                </li>
-                {% endfor %}
-            </ul>
-            {% endif %}
+            {% if checklist_data.recommendations %}
+    {% set rec = checklist_data.recommendations %}
+
+    {% if rec.things_to_take %}
+    <h5 class="card-title mt-4">🧳 Что взять с собой:</h5>
+    <ul class="list-group list-group-flush">
+        {% for item in rec.things_to_take %}
+        <li class="list-group-item d-flex align-items-center">
+            <i class="bi bi-check-circle-fill text-primary me-2"></i>
+            <span>{{ item }}</span>
+        </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    {% if rec.things_to_do %}
+    <h5 class="card-title mt-4">🗺 Что делать:</h5>
+    <ul class="list-group list-group-flush">
+        {% for activity in rec.things_to_do %}
+        <li class="list-group-item d-flex align-items-center">
+            <i class="bi bi-arrow-right-circle-fill text-success me-2"></i>
+            <span>{{ activity }}</span>
+        </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    {% if rec.local_tips %}
+    <h5 class="card-title mt-4">💡 Локальные советы:</h5>
+    <ul class="list-group list-group-flush">
+        {% for tip in rec.local_tips %}
+        <li class="list-group-item d-flex align-items-center">
+            <i class="bi bi-info-circle-fill text-warning me-2"></i>
+            <span>{{ tip }}</span>
+        </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    {% if rec.events %}
+    <h5 class="card-title mt-4">🎉 События и фестивали:</h5>
+    <ul class="list-group list-group-flush">
+        {% for event in rec.events %}
+        <li class="list-group-item d-flex align-items-center">
+            <i class="bi bi-calendar-event-fill text-danger me-2"></i>
+            <span>{{ event }}</span>
+        </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+{% endif %}
+
         </div>
     </div>
 </div>

@@ -158,7 +158,7 @@ def preview_pdf(filename):
         "season": f"{season} ({dest_info['temp']})",
         "description": dest_info["description"],
         "categories": categories,
-        "tips": dest_info.get("tips", [])
+        "recommendations": dest_info.get("recommendations", {})
     }
 
     return render_template('preview.html', checklist_data=checklist_data, pdf_filename=filename)
